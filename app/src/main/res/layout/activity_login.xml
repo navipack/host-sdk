@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="#333333">
+
+
+        <Button
+            android:id="@+id/switch_button"
+            android:layout_marginLeft="@dimen/horizontal_margin"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:text="Switch"
+            android:background="@drawable/button_background"
+            android:textColor="#FFFFFF"
+            android:layout_alignParentLeft="true"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textSize="17sp"
+            android:text="Login"/>
+
+        <Button
+            android:id="@+id/search_button"
+            android:layout_width="60dp"
+            android:layout_height="40dp"
+            android:text="Search"
+            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"
+            android:layout_marginRight="@dimen/horizontal_margin"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
+
+
+    <ListView
+        android:id="@+id/listview"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="0dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
+
+    <EditText
+        android:id="@+id/edittext"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginLeft="@dimen/horizontal_margin"
+        android:layout_marginRight="@dimen/horizontal_margin"
+        android:visibility="invisible"
+        android:text="192.168.1.106"/>
+
+    <Button
+        android:id="@+id/connect_button_tcp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="ConnectTCP"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="96dp"
+        android:visibility="invisible"
+        android:layout_marginLeft="@dimen/horizontal_margin"
+        android:layout_marginRight="@dimen/horizontal_margin"
+        android:background="@drawable/button_background"/>
+
+    <Button
+        android:id="@+id/connect_button_serial"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="ConnectSerial"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="144dp"
+        android:visibility="invisible"
+        android:layout_marginLeft="@dimen/horizontal_margin"
+        android:layout_marginRight="@dimen/horizontal_margin"
+        android:background="@drawable/button_background"/>
+
+
+</RelativeLayout>

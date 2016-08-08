@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/btnLoadMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="载入地图"
+        />
+
+
+    <Button
+        android:id="@+id/btnStartBuildMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="开始建图"
+
+        />
+
+    <Button
+        android:id="@+id/btnStopBuildMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="停止建图"
+        />
+    <Button
+        android:id="@+id/btnInitLocation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="初始定位"/>
+
+    <Button
+        android:id="@+id/btnGoOnePoint"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="到点运动"/>
+
+    <Button
+        android:id="@+id/btnSelfCtrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="自由控制"
+        />
+
+
+</LinearLayout>
