@@ -14,3 +14,9 @@ Doc:包含android sdk的相关类的doc文档
 navipacksdk:包含自己应用程序所要包含的module
 NaviPackExe:目录中的可执行文件为与之对应的雷达套件板中运行的程序
 
+#备注
+wifi模块选型：
+naviPack激光雷达套件暂时仅支持使用**8192cu**芯片的wifi模块。
+推荐购买：
+https://item.taobao.com/item.htm?spm=a230r.1.14.58.Z1QTOX&id=7915403646&ns=1&abbucket=17#detail
+
