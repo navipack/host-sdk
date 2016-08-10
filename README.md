@@ -17,6 +17,9 @@ NaviPackExe:目录中的可执行文件为与之对应的雷达套件板中运�
 #备注
 wifi模块选型：
 naviPack激光雷达套件暂时仅支持使用**8192cu**芯片的wifi模块。
-推荐购买：
+推荐购买(或者同类产品)：
 https://item.taobao.com/item.htm?spm=a230r.1.14.58.Z1QTOX&id=7915403646&ns=1&abbucket=17#detail
 
+串口开启注意事项：
+一定要确保自己的应用程序有权限来打开串口。
+NaciPack接到上位机上的时候会再上位机上的/dev目录下生成一个ttyACMX的串口，要打开这个串口的APP至少对这个文件具有**RW**的权限。如果操作系统是自己编译，可以在app程序启动前执行chmod +rw /dev/ttyACM*的操作，当然如果有其他更好的办法也是OK的。
