@@ -7,11 +7,15 @@ import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
+import com.imscv.navipacksdk.constant.NaviPackType;
 import com.imscv.navipacksdk.data.AlgMapData;
 import com.imscv.navipacksdk.data.AlgSensorData;
 import com.imscv.navipacksdk.data.CarrierParam;
 import com.imscv.navipacksdk.data.NaviPackParam;
+import com.imscv.navipacksdk.inf.DeviceErrorMsgListener;
 import com.imscv.navipacksdk.inf.DeviceMsgListener;
+import com.imscv.navipacksdk.inf.UpdateCallback;
+import com.imscv.navipacksdk.module.SelfStream;
 import com.imscv.navipacksdk.regparam.AlgStatusReg;
 
 
@@ -22,7 +26,13 @@ import com.imscv.navipacksdk.regparam.AlgStatusReg;
 public class NaviPackSdk {
     private static final String TAG = "NaviPackSdk";
     private static final boolean VERBOSE = false;
+
+
     private static final int K_WHAT_DEVICE_MSG = 0;
+    private static final int K_WHAT_DEVIDE_ERROR_MSG = 1;
+
+    private static final int K_WHAT_SEND_UPDATE_FILE = 0;
+    private static final int K_WHAT_SEND_RESPONSE = 2;
 
     public enum ConnectTypeEnum {
         TCP_CON, SERIAL_CON
@@ -36,8 +46,12 @@ public class NaviPackSdk {
      * 消息处理线程实例
      */
     private static SdkMessageDealThread sSdkessageDealThread = null;
+    private static NaviPackMsgSendThread sNaviPackMsgSendThread = null;
 
     private DeviceMsgListener mDeviceMsgListener = null;
+    private DeviceErrorMsgListener mDeviceErrorMsgListener = null;
+    private UpdateCallback mUpdateCallback = null;
+
 
     /**
      * 底盘控制器功能码需求标志
@@ -80,10 +94,26 @@ public class NaviPackSdk {
      * @return 返回NaviPack对象的ID
      * @since 属性值由3个部分组成: (主版本号.子版本号.编译号)
      */
-    public String GetSdkVersion() {
-        int verson = native_getSdkVerson();
-        String ver = (int) (verson >> 24 & 0xff) + "." + (int) (verson >> 16 & 0xff) + "." + (int) (verson & 0xffff);
+    public String getSdkVersion() {
+        int version = native_getSdkVersion();
+        return transformVersionCode(version);
+
+    }
+
+    public String transformVersionCode(int version)
+    {
+        String ver = (int) (version >> 24 & 0xff) + "." + (int) (version >> 16 & 0xff) + "." + (int) (version & 0xffff);
         return ver;
+    }
+
+    /**
+     * 通知navipack 获取当前的版本信息
+     *
+     * @param handlerId 返回NaviPack对象的ID
+     * @return 是否发送成功
+     */
+    public int setGetNaviPackVersion(int handlerId) {
+        return native_setGetNaviPackVersion(handlerId);
     }
 
 
@@ -132,8 +162,8 @@ public class NaviPackSdk {
      * @return 返回值小于0，表示失败，等于0 表示成功
      * @since SetTargets函数，只有在NaviPack完成定位，并载入地图后，才会有效。该函数的参数位置，是指世界坐标系下的位置信息。
      */
-    public int setTargets(int handlerId, int[] position_x, int[] position_y, int num,int phi) {
-        return native_setTargets(handlerId, position_x, position_y, num,phi);
+    public int setTargets(int handlerId, int[] position_x, int[] position_y, int num, int phi) {
+        return native_setTargets(handlerId, position_x, position_y, num, phi);
     }
 
     /**
@@ -190,25 +220,25 @@ public class NaviPackSdk {
 
     /**
      * 通知naviPack更新地图到本地
+     *
      * @param handlerId naviPack对象
      * @return 返回值小于0，表示失败，大于等于零，表示成功
      */
-    public int setGetCurrentMap(int handlerId)
-    {
+    public int setGetCurrentMap(int handlerId) {
         return native_setGetCurrentMap(handlerId);
     }
 
     /**
      * 读取NaviPack所建地图的图层数据
+     *
      * @param handlerId NaviPack对象ID
-     * @param map_data AlgMapData，用于保存地图数据
-     * @param map_type 不同的地图类型。可以是激光雷达图层、超声波图层、碰撞图层等，自定义图层，组合图层等
+     * @param map_data  AlgMapData，用于保存地图数据
+     * @param map_type  不同的地图类型。可以是激光雷达图层、超声波图层、碰撞图层等，自定义图层，组合图层等
      * @return 返回值小于0，表示失败，等于0 表示成功
      */
-    public int GetMapLayer(int handlerId, AlgMapData map_data, int map_type)
-    {
-        Log.d(TAG,"GetMapLayer " + map_type);
-        return native_getMapLayer(handlerId,map_data,map_type);
+    public int getMapLayer(int handlerId, AlgMapData map_data, int map_type) {
+        Log.d(TAG, "getMapLayer " + map_type);
+        return native_getMapLayer(handlerId, map_data, map_type);
     }
 
     /**
@@ -248,12 +278,51 @@ public class NaviPackSdk {
 
     /**
      * 设置消息接收回调
-     * @param listener 从服务端发来的消息将经过这个接口来回调给客户端
+     *
+     * @param listener1 从服务端发来的消息将经过这个接口来回调给客户端
+     * @param listener2 从服务端发来的错误经过这个接口来回调给客户端
      * @return 0
      */
-    public int setOnGetDeviceMsgCallbacks(DeviceMsgListener listener) {
-        mDeviceMsgListener = listener;
+    public int setOnGetDeviceMsgCallbacks(DeviceMsgListener listener1, DeviceErrorMsgListener listener2) {
+        mDeviceMsgListener = listener1;
+        mDeviceErrorMsgListener = listener2;
         return 0;
+    }
+
+    /**
+     * 设置更新Navipack套件的运行程序
+     *
+     * @param handlerId NaviPack对象ID
+     * @param fileName  更新的文件名
+     * @param cb        更新消息的回调
+     */
+    public void setUpdateNaviPackFile(int handlerId, String fileName, UpdateCallback cb) {
+        mUpdateCallback = cb;
+        Message msg = sNaviPackMsgSendThread.obtainMessage(K_WHAT_SEND_UPDATE_FILE, handlerId, 0, fileName);
+        msg.sendToTarget();
+    }
+
+
+    /**
+     * 设置wifi
+     * @param handlerId NaviPack对象ID
+     * @param ssid      wifi名称
+     * @param pwd       wifi密码
+     * @return          是否发送成功
+     * @since 设置成功后网络会断开，如果使用tcp链接的话，请重新链接设备
+     */
+    public int setWifiParam(int handlerId, String ssid, String pwd) {
+        return native_setWiFiParam(handlerId, ssid, pwd);
+    }
+
+    /**
+     * 发送控制器厂商自定义消息
+     * @param handlerId NaviPack对象ID
+     * @param stream    数据流
+     * @return
+     */
+    public int setSelfMsg(int handlerId, SelfStream stream) {
+        return native_setSelfStream(handlerId, stream.getBytes());
     }
 
     /**
@@ -262,16 +331,22 @@ public class NaviPackSdk {
     private NaviPackSdk() {
 
         native_init();
-        HandlerThread handlerThread = new HandlerThread("SdkEventThread");
-        handlerThread.start();
-        sSdkessageDealThread = new SdkMessageDealThread(handlerThread.getLooper());
+        HandlerThread sdkEventThread = new HandlerThread("SdkEventThread");
+        sdkEventThread.start();
+        sSdkessageDealThread = new SdkMessageDealThread(sdkEventThread.getLooper());
+
+        HandlerThread sendMsgThread = new HandlerThread("SendMsgThread");
+        sendMsgThread.start();
+        sNaviPackMsgSendThread = new NaviPackMsgSendThread(sendMsgThread.getLooper());
     }
 
 
     // TODO: 2016/5/26 java --> native
     private native int native_init();
 
-    private native int native_getSdkVerson();
+    private native int native_getSdkVersion();
+
+    private native int native_setGetNaviPackVersion(int id);
 
     private native int native_create(int conType);
 
@@ -291,7 +366,7 @@ public class NaviPackSdk {
 
     private native int native_setNaviPackParam(int id, NaviPackParam param);
 
-    private native int native_setTargets(int id, int position_x[], int position_y[], int num,int phi);
+    private native int native_setTargets(int id, int position_x[], int position_y[], int num, int phi);
 
     private native int native_getCurrentPath(int id, int position_x[], int position_y[]);
 
@@ -329,18 +404,36 @@ public class NaviPackSdk {
 
     private native int native_checkConnection();
 
+    private native int native_updateNaviPackFile(int id, String fileName);//升级文件
+
+    private native int native_setSelfStream(int id, byte[] stream);
+
 
     // TODO: 2016/5/26 native --> java
 
     /**
      * 设备返回的消息回调
-     * @param id NaviPack对象ID
+     *
+     * @param id      NaviPack对象ID
      * @param msgType 消息类型
      * @param msgCode 消息码
-     * @param param 参数
+     * @param param   参数
      */
     private void onRecvMsg(int id, int msgType, int msgCode, Object param) {
-        Message msg = sSdkessageDealThread.obtainMessage(K_WHAT_DEVICE_MSG,id,msgType,msgCode);
+        Message msg = sSdkessageDealThread.obtainMessage(K_WHAT_DEVICE_MSG, id, msgType, msgCode);
+        msg.sendToTarget();
+    }
+
+    private enum ErrorLevel {DEBUG, INFO, WARNING, ERROR}
+
+    ;
+
+    private void onRecvErrorMsg(int id, int level, int code, byte[] info) {
+        Bundle bundle = new Bundle();
+        ErrorLevel el = ErrorLevel.values()[level];
+        bundle.putString("errInfo", "[" + el.name() + "]:" + new String(info));
+        Message msg = sSdkessageDealThread.obtainMessage(K_WHAT_DEVIDE_ERROR_MSG, id, level, code);
+        msg.setData(bundle);
         msg.sendToTarget();
     }
 
@@ -359,15 +452,59 @@ public class NaviPackSdk {
             Bundle bundle;
             switch (msg.what) {
                 case K_WHAT_DEVICE_MSG:
+                    if (msg.arg2 >= NaviPackType.DEVICE_MSG_TYPE_MAX_VALUE) {
+                        Message ms = sNaviPackMsgSendThread.obtainMessage(K_WHAT_SEND_RESPONSE, msg.arg2, (int) msg.obj);
+                        ms.sendToTarget();
+                        break;
+                    }
                     if (mDeviceMsgListener != null)
-                        mDeviceMsgListener.onGetDeviceMsg(msg.arg1, msg.arg2, (int)msg.obj, null);
+                        mDeviceMsgListener.onGetDeviceMsg(msg.arg1, msg.arg2, (int) msg.obj, null);
                     else
-                        Log.e(TAG,"mDeviceMsgListener is null");
+                        Log.e(TAG, "mDeviceMsgListener is null");
+                    break;
+                case K_WHAT_DEVIDE_ERROR_MSG:
+                    //Log.e(TAG,"K_WHAT_DEVIDE_ERROR_MSG --> " + (String) msg.obj);
+                    if (mDeviceErrorMsgListener != null) {
+                        bundle = msg.getData();
+                        mDeviceErrorMsgListener.onGetDeviceErrorMsg(msg.arg1, msg.arg2, (int) msg.obj, bundle.getString("errInfo", "null data"));
+                    }
                     break;
                 default:
                     super.handleMessage(msg);
                     break;
             }
+        }
+    }
+
+
+    private static final int SET_UPDATE_FILE = 0xa1;
+
+    private class NaviPackMsgSendThread extends Handler {
+        public NaviPackMsgSendThread(Looper looper) {
+            super(looper);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case K_WHAT_SEND_UPDATE_FILE:
+                    int updateRet = native_updateNaviPackFile(msg.arg1, (String) msg.obj);
+                    if (mUpdateCallback != null) {
+                        mUpdateCallback.onSendSuccess(updateRet == 0 ? true : false, updateRet);
+                    }
+                    break;
+                case K_WHAT_SEND_RESPONSE:
+                    if (msg.arg1 == SET_UPDATE_FILE) {
+                        if (mUpdateCallback != null) {
+                            mUpdateCallback.onUpdateSuccess(msg.arg2 == 0 ? true : false, msg.arg2);
+                        }
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+                    break;
+            }
+
         }
     }
 

@@ -26,7 +26,7 @@ public class NaviPackType {
      *      {@link #CODE_MAP_COLLISION}
      *      {@link #CODE_MAP_GROUND}
      */
-    public static final int DEVICE_MSG_TYPE_UPDATE_MAP = 1;
+    public static final int DEVICE_MSG_TYPE_UPDATE_MAP = 0x01;
     /**
      *   地图类型 总图
      */
@@ -57,7 +57,7 @@ public class NaviPackType {
      *       {@link #CODE_SENSOR_COLLISION}
      *       {@link #CODE_SENSOR_GROUND}
      */
-    public static final int DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA = 2;
+    public static final int DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA = 0x02;
 
     /**
      * 雷达传感器原始数据
@@ -77,19 +77,48 @@ public class NaviPackType {
     public static final int CODE_SENSOR_GROUND = 3;
 
 
-
-
     /**
-     * 消息类型为更新路径数据
+     * 消息类型为初始定位成功
      * 子类型暂时为O
      */
-    public static final int DEVICE_MSG_TYPE_UPDATE_PLANNED_POATH = 3;
+    public static final int DEVICE_MSG_TYPE_INIT_LOCATION_SUCCESS = 0x03;
 
 
     /**
      * 消息类型为更新传感器数据
      * 子类型暂时为O
      */
-    public static final int DEVICE_MSG_TYPE_UPDATE_ALG_ATATUS_REG = 4;
+    public static final int DEVICE_MSG_TYPE_UPDATE_ALG_ATATUS_REG = 0x04;
 
+    /**
+     * 消息类型为控制到点运动有更新
+     * 子类型为：
+     * {@link #CODE_TARGET_REACH_POINT}
+     */
+    public static final int DEVICE_MSG_TYPE_UPDATE_ALG_TARGET_CTRL = 0x05;
+
+
+    /**
+     * 消息类型为获取navipack的版本信息
+     * 子类型为版本代码
+     */
+    public static final int DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION = 0X06;
+
+    /**
+     * 到达运动点
+     */
+    public static final int CODE_TARGET_REACH_POINT = 0x00;
+
+    /**
+     * 终止到点运动
+     */
+    public static final int CODE_TARGET_TERMINAL = 0x01;
+
+    /**
+     * 路径有更新
+     */
+    public static final int CODE_TARGET_PATH_UPGRADE = 0x02;
+
+
+    public static final int DEVICE_MSG_TYPE_MAX_VALUE = 0x10;
 }

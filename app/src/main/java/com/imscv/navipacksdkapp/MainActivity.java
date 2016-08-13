@@ -2,8 +2,8 @@ package com.imscv.navipacksdkapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,7 +31,7 @@ public class MainActivity extends Activity {
     private EditText editText;
     private ListView listView;
 
-    private String deviceName = "192.168.1.106";
+    private String deviceName = "/dev/ttyACM1";
     private int deviceParam = 115200;
     private NaviPackSdk.ConnectTypeEnum mConnectType = NaviPackSdk.ConnectTypeEnum.SERIAL_CON;
 
@@ -139,6 +139,7 @@ public class MainActivity extends Activity {
         bundle.putSerializable("device", device);
         intent.putExtras(bundle);
         intent.putExtra("handlerID",mId);
+        intent.putExtra("isUseTcp",mConnectType== NaviPackSdk.ConnectTypeEnum.TCP_CON?true:false);
         MainActivity.this.startActivity(intent);
     }
 

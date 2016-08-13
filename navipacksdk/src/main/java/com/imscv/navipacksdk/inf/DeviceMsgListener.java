@@ -13,5 +13,5 @@ public interface DeviceMsgListener {
      * @param msgCode 消息码 {@link com.imscv.navipacksdk.constant.NaviPackType } CODE_XXX 表示消息的子类型
      * @param param 消息参数 附带参数
      */
-    void onGetDeviceMsg(int id,int msgType,int msgCode,Object param);
+    void onGetDeviceMsg(int id, int msgType, int msgCode, Object param);
 }

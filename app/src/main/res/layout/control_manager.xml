@@ -4,6 +4,13 @@
     android:layout_height="wrap_content">
 
     <Button
+        android:id="@+id/btnSelfMsg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="自定数据示例"
+        />
+
+    <Button
         android:id="@+id/btnLoadMap"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,6 +50,12 @@
         android:layout_height="wrap_content"
         android:text="自由控制"
         />
+
+    <Button
+        android:id="@+id/btnUpdate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="升级套件"/>
 
 
 </LinearLayout>

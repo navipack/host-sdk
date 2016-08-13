@@ -5,16 +5,23 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.imscv.navipacksdk.NaviPackSdk;
 import com.imscv.navipacksdk.constant.NaviPackType;
 import com.imscv.navipacksdk.data.AlgMapData;
 import com.imscv.navipacksdk.data.AlgSensorData;
+import com.imscv.navipacksdk.inf.DeviceErrorMsgListener;
 import com.imscv.navipacksdk.inf.DeviceMsgListener;
+import com.imscv.navipacksdk.inf.UpdateCallback;
+import com.imscv.navipacksdk.module.SelfStream;
 import com.imscv.navipacksdk.regparam.AlgStatusReg;
 import com.imscv.navipacksdk.tools.PosTransform;
 import com.imscv.navipacksdkapp.control.ChsControl;
@@ -26,8 +33,10 @@ import com.imscv.navipacksdkapp.view.Rudder;
  */
 public class NaviPackShowActivity extends Activity implements Runnable {
     private static final String TAG = "NaviPackSdk";
-
+    private static final int K_WHAT_ERROR_MSG = 0;
+    private static final int K_WHAT_SET_VIEW_DOWM = 1;
     private int mHandlerId;
+    private boolean isUseTcp = false;
     private MapSurfaceView mapSurfaceView;
     private NaviPackSdk mNaviPack;
 
@@ -37,8 +46,13 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     private Button btnGoToOnePoint;
     private Button btnSelfCtrl;
     private Button btnInitLocation;
+    private Button btnSelfMsg;
+    private Button btnUpdateNavipack;
 
+    private TextView tvErrorShow;
     private Rudder mRudder;
+
+    private ScrollView mScrollView;
 
     private Handler mHandler;
     private ChsControl mChsControl;
@@ -51,6 +65,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     private AlgMapData mapData;
     private Bitmap lidarMap;
     private AlgStatusReg statusReg;
+
 
 
     @Override
@@ -72,6 +87,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         mSpeedW = 0.0f;
         Intent intent = getIntent();
         mHandlerId = intent.getIntExtra("handlerID",0);
+        isUseTcp = intent.getBooleanExtra("isUseTcp",false);
 
         mNaviPack = NaviPackSdk.getInstance();
         mChsControl = ChsControl.getInstance();
@@ -99,13 +115,47 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         btnInitLocation = (Button) findViewById(R.id.btnInitLocation);
         btnInitLocation.setOnClickListener(btnClickListener);
 
+        btnSelfMsg = (Button) findViewById(R.id.btnSelfMsg);
+        btnSelfMsg.setOnClickListener(btnClickListener);
+
+        btnUpdateNavipack = (Button) findViewById(R.id.btnUpdate);
+        btnUpdateNavipack.setOnClickListener(btnClickListener);
+
+        mScrollView = (ScrollView) findViewById(R.id.scrollView);
+
+        tvErrorShow = (TextView) findViewById(R.id.tvErrorShow);
+        tvErrorShow.setClickable(false);
+        tvErrorShow.setFocusable(false);
 
         mRudder = (Rudder) findViewById(R.id.chs_rudder);
         mRudder.setRudderListener(rudderListener);
 
-        mNaviPack.setOnGetDeviceMsgCallbacks(deviceMsgListener);
+        mNaviPack.setOnGetDeviceMsgCallbacks(deviceMsgListener,deviceErrorMsgListener);
 
-        mHandler = new Handler();
+        mHandler = new Handler()
+        {
+            public void handleMessage(Message msg) {
+                switch (msg.what) {
+                    //判断发送的消息
+                    case K_WHAT_ERROR_MSG:
+                        //更新View
+                        tvErrorShow.append("\n"+(String)msg.obj);
+                        this.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                            }
+                        });
+                        break;
+                    case K_WHAT_SET_VIEW_DOWM:
+                        //mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                        break;
+                    default:
+                        break;
+                }
+                super.handleMessage(msg);
+            }
+        };
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -120,27 +170,50 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
         new Thread(this).start();
 
+        if(!isUseTcp)
+        {
+            mNaviPack.setWifiParam(mHandlerId,"INMOTION,Wifi","inmotion");
+        }
+
 
     }
+
+    public void updateTvMsg(String info)
+    {
+        Log.i(TAG,info);
+        Message msg = mHandler.obtainMessage(K_WHAT_ERROR_MSG,info);
+        msg.sendToTarget();
+//        msg = mHandler.obtainMessage(K_WHAT_SET_VIEW_DOWM);
+//        msg.sendToTarget();
+
+    }
+
+    DeviceErrorMsgListener deviceErrorMsgListener = new DeviceErrorMsgListener() {
+        @Override
+        public void onGetDeviceErrorMsg(int id, int errorLevel,int msgCode, String msgInfo) {
+            updateTvMsg("GetDeviceErrorMsg: level = "+errorLevel + " code = "+msgCode+"\n\t"+msgInfo);
+        }
+    };
 
     DeviceMsgListener deviceMsgListener = new DeviceMsgListener() {
         @Override
         public void onGetDeviceMsg(int id, int msgType, int msgCode, Object param) {
+            String deviceMsgStr;
             if(mHandlerId != id)
             {
                 Log.e(TAG,"mHandlerId = " + mHandlerId + "  RECV ID = " + id);
-                return;
+                //return;
             }
             switch(msgType)
             {
                 case NaviPackType.DEVICE_MSG_TYPE_ERROR_CODE://有错误
-                    Log.e(TAG,"devices msg error code : " + msgCode);
+                    updateTvMsg("设备发生错误，错误码： " + msgCode);
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_MAP://地图有更新
                     if(msgCode == NaviPackType.CODE_MAP_LIDAR) {
 
-                        mNaviPack.GetMapLayer(mHandlerId,mapData,NaviPackType.CODE_MAP_LIDAR);
-                        Log.i(TAG, "DEVICE_MSG_TYPE_UPDATE_MAP " + mapData.x_min + "  " + mapData.y_min);
+                        mNaviPack.getMapLayer(mHandlerId,mapData, NaviPackType.CODE_MAP_LIDAR);
+                        updateTvMsg( "地图有更新 ，图像长度：" + mapData.width + " 图像宽度："+mapData.height);
                         lidarMap = mapData.getBitmap();
                         if(lidarMap != null)
                         {
@@ -150,7 +223,6 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     break;
 
                 case NaviPackType.DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA:
-                    Log.d(TAG,"DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA --> " + msgCode);
                     if(msgCode == NaviPackType.CODE_SENSOR_LIDAR)   //雷达数据有更新
                     {
                         if(mapData.width >0 && mapData.height > 0) {
@@ -162,26 +234,42 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                         }
                     }
                     break;
-                case NaviPackType.DEVICE_MSG_TYPE_UPDATE_PLANNED_POATH:
-                    int [] posX = new int[128];
-                    int [] posY = new int[128];
-                    int path_num = mNaviPack.getCurrentPath(mHandlerId,posX,posY);
-                    Point[] path = new Point[path_num];
-                    for(int i=0;i<path_num;i++)
-                    {
-                        path[i] =  PosTransform.pointToPix(new Point(posX[i],posY[i]),mapData);
-                        Log.d(TAG,"plan path:"+path[i].toString());
-                    }
-
-                    mapSurfaceView.setUpdatePlanedPath(path);
-
-                    Log.d(TAG,"NaviPackType.DEVICE_MSG_TYPE_UPDATE_PLANNED_POATH  " + path_num );
+                case NaviPackType.DEVICE_MSG_TYPE_INIT_LOCATION_SUCCESS:
+                    updateTvMsg("初始定位成功！");
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_ALG_ATATUS_REG:
                     mNaviPack.getStatus(mHandlerId,statusReg);
                     Point pos = PosTransform.pointToPix(new Point(statusReg.posX, statusReg.posY), mapData);
                     mapSurfaceView.setChsPos(pos,statusReg.posSita);
                     break;
+                case NaviPackType.DEVICE_MSG_TYPE_UPDATE_ALG_TARGET_CTRL:
+
+                    if(msgCode == NaviPackType.CODE_TARGET_REACH_POINT) {
+                        updateTvMsg("到点运动，到达指定点");
+                        mapSurfaceView.setUpdatePlanedPath(null);
+                    }else if(msgCode == NaviPackType.CODE_TARGET_TERMINAL) {
+                        updateTvMsg("到点运动终止");
+                        mapSurfaceView.setUpdatePlanedPath(null);
+                    }else if(msgCode == NaviPackType.CODE_TARGET_PATH_UPGRADE) {
+                        updateTvMsg("到点运动路径有更新");
+                        int [] posX = new int[128];
+                        int [] posY = new int[128];
+                        int path_num = mNaviPack.getCurrentPath(mHandlerId,posX,posY);
+                        Point[] path = new Point[path_num];
+                        for(int i=0;i<path_num;i++)
+                        {
+                            path[i] =  PosTransform.pointToPix(new Point(posX[i],posY[i]),mapData);
+                            updateTvMsg("plan path:"+path[i].toString());
+                        }
+
+                        mapSurfaceView.setUpdatePlanedPath(path);
+                    }
+                    break;
+                case NaviPackType.DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION:
+                    updateTvMsg("navipack 版本为："+mNaviPack.transformVersionCode(msgCode));
+                    break;
+
+
                 default:break;
             }
 
@@ -220,6 +308,15 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         public void onClick(View v) {
             switch (v.getId())
             {
+                case R.id.btnSelfMsg:
+                    SelfStream stream = new SelfStream(1024);
+                    stream.writeByte(23);
+                    stream.writeByte(25);
+                    stream.writeShort(777);
+                    stream.writeInt(1024);
+                    stream.writeFloat(10.0f);
+                    mNaviPack.setSelfMsg(mHandlerId,stream);
+                    break;
                 case R.id.btnLoadMap:
                     Log.d(TAG,"btnLoadMap");
                     int loadMapRet = mNaviPack.setGetCurrentMap(mHandlerId);
@@ -343,10 +440,25 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                         btnInitLocation.setVisibility(View.GONE);
                     }
                     break;
+                case R.id.btnUpdate:
+                    mNaviPack.setUpdateNaviPackFile(mHandlerId, Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/start_anmiation.png",updateCallback);
+                    break;
                 default:
 
                     break;
             }
+        }
+    };
+
+    private UpdateCallback updateCallback = new UpdateCallback() {
+        @Override
+        public void onSendSuccess(boolean isSuccess, int code) {
+            Log.d(TAG,"onSendSuccess: "+isSuccess + " code = "+code);
+        }
+
+        @Override
+        public void onUpdateSuccess(boolean isSuccess, int code) {
+            Log.d(TAG,"onUpdateSuccess: "+isSuccess + " code = "+code);
         }
     };
 
@@ -369,6 +481,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     protected void onPause() {
         mSpeedW = .0f;
         mSpeedV = .0f;
+        mNaviPack.destroy(mHandlerId);
         super.onPause();
     }
 }

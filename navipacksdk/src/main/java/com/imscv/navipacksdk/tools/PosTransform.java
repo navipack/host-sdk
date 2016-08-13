@@ -41,7 +41,7 @@ public class PosTransform {
      * @param mapData 输出点所要对应的地图s
      * @return 输出一系列点,按照方式｛x0 y0 x1 y1 ...｝排列
      */
-    public static float[] switchSensorDataToPixs(AlgSensorData sensorData,AlgMapData mapData)
+    public static float[] switchSensorDataToPixs(AlgSensorData sensorData, AlgMapData mapData)
     {
         float[] dataOut = new float[sensorData.num*2];
 

@@ -78,7 +78,7 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
      **/
     public static final int TIME_IN_FRAME = 20;
 
-    private int paintColor = android.graphics.Color.WHITE;//默认画笔颜色为黑色
+    private int paintColor = Color.WHITE;//默认画笔颜色为黑色
     private float paintWidth = 2f;//默认画笔宽度
     private Paint.Style paintStyle = Paint.Style.STROKE;//默认画笔风格
     private int paintAlph = 128;//255;//默认不透明
@@ -193,7 +193,6 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
     }
 
 
-
     /**
      * 获取被触摸的点
      * @return
@@ -208,6 +207,7 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
         if (mIsRunning) {
             // rate =3;
             mCanvas = surfaceHolder.lockCanvas();
+            if(mCanvas == null) return;
             mCanvas.drawColor(Color.TRANSPARENT, PorterDuff.Mode.CLEAR);
             mCanvas.scale(rate, rate);
 //            mCanvas.drawBitmap(map,0,0 , mPaint);
@@ -215,8 +215,8 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
             float cenY = (screenH / rate) / 2;
 
 
-            Log.d(TAG, "doDraw cenX = " + cenX + "  cenY = " + cenY + "\n"
-                    + " MoveX = " + moveX + " MoveY = " + moveY);
+//            Log.d(TAG, "doDraw cenX = " + cenX + "  cenY = " + cenY + "\n"
+//                    + " MoveX = " + moveX + " MoveY = " + moveY);
 
             mCanvas.translate(moveX,moveY);
             // 绘制触摸点
