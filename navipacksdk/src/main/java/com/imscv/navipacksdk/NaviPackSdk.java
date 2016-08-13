@@ -100,6 +100,11 @@ public class NaviPackSdk {
 
     }
 
+    /**
+     * 将版本代码转换为版本号
+     * @param version 版本代码
+     * @return 版本号
+     */
     public String transformVersionCode(int version)
     {
         String ver = (int) (version >> 24 & 0xff) + "." + (int) (version >> 16 & 0xff) + "." + (int) (version & 0xffff);
