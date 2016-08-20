@@ -23,7 +23,7 @@ import com.imscv.navipacksdk.regparam.AlgStatusReg;
  * 导航sdk的主要接口部分
  * Created by dell on 2016/5/25.
  */
-public class NaviPackSdk {
+public class NaviPackSdk extends NaviPackType{
     private static final String TAG = "NaviPackSdk";
     private static final boolean VERBOSE = false;
 
@@ -457,7 +457,7 @@ public class NaviPackSdk {
             Bundle bundle;
             switch (msg.what) {
                 case K_WHAT_DEVICE_MSG:
-                    if (msg.arg2 >= NaviPackType.DEVICE_MSG_TYPE_MAX_VALUE) {
+                    if (msg.arg2 >= DEVICE_MSG_TYPE_MAX_VALUE) {
                         Message ms = sNaviPackMsgSendThread.obtainMessage(K_WHAT_SEND_RESPONSE, msg.arg2, (int) msg.obj);
                         ms.sendToTarget();
                         break;

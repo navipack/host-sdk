@@ -170,10 +170,15 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
         new Thread(this).start();
 
-        if(!isUseTcp)
-        {
-            mNaviPack.setWifiParam(mHandlerId,"INMOTION,Wifi","inmotion");
+        boolean needTestSetWifi = false;
+        if(needTestSetWifi) {
+            if (!isUseTcp) {
+                mNaviPack.setWifiParam(mHandlerId, "wav.link", "12345678");
+            }
         }
+
+        updateTvMsg("本地版本为:"+mNaviPack.getSdkVersion());
+        mNaviPack.setGetNaviPackVersion(mHandlerId);
 
 
     }
@@ -223,10 +228,10 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     break;
 
                 case NaviPackType.DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA:
-                    if(msgCode == NaviPackType.CODE_SENSOR_LIDAR)   //雷达数据有更新
+                    if(msgCode == NaviPackType.CODE_SENSOR_ST_LIDAR2D)   //雷达数据有更新
                     {
                         if(mapData.width >0 && mapData.height > 0) {
-                            mNaviPack.getSensorData(mHandlerId, sensorData, NaviPackType.CODE_SENSOR_LIDAR);
+                            mNaviPack.getSensorData(mHandlerId, sensorData, NaviPackType.CODE_SENSOR_ST_LIDAR2D);
 
 
                             float[] pixs = PosTransform.switchSensorDataToPixs(sensorData,mapData);
@@ -242,13 +247,13 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     Point pos = PosTransform.pointToPix(new Point(statusReg.posX, statusReg.posY), mapData);
                     mapSurfaceView.setChsPos(pos,statusReg.posSita);
                     break;
-                case NaviPackType.DEVICE_MSG_TYPE_UPDATE_ALG_TARGET_CTRL:
+                case NaviPackType.DEVICE_MSG_TYPE_NAVIGATION:
 
                     if(msgCode == NaviPackType.CODE_TARGET_REACH_POINT) {
                         updateTvMsg("到点运动，到达指定点");
                         mapSurfaceView.setUpdatePlanedPath(null);
                     }else if(msgCode == NaviPackType.CODE_TARGET_TERMINAL) {
-                        updateTvMsg("到点运动终止");
+                        updateTvMsg("停止导航");
                         mapSurfaceView.setUpdatePlanedPath(null);
                     }else if(msgCode == NaviPackType.CODE_TARGET_PATH_UPGRADE) {
                         updateTvMsg("到点运动路径有更新");
@@ -266,7 +271,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     }
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION:
-                    updateTvMsg("navipack 版本为："+mNaviPack.transformVersionCode(msgCode));
+                    updateTvMsg("navipack 套件版本为："+mNaviPack.transformVersionCode(msgCode));
                     break;
 
 
@@ -355,7 +360,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                         btnInitLocation.setVisibility(View.GONE);
 
                     }else{
-
+                        isRudderUse = false;
                         btnLoadMap.setVisibility(View.VISIBLE);
                         btnStartBuildMap.setVisibility(View.VISIBLE);
                         btnStopBuildMap.setVisibility(View.GONE);
@@ -393,6 +398,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     }
                     break;
                 case R.id.btnGoOnePoint://到点运动坐标转换暂时没有做。所以暂时不用。
+                    isRudderUse = false;
                     Point touchPoint = mapSurfaceView.getTouchedPoint();//获取图中我们所选取的点
                     Point targetPoint = PosTransform.pixToPoint(touchPoint,mapData);//转换到世界坐标系
                     //在这里我仅设置一组点
@@ -432,6 +438,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     int initLocationRet = mNaviPack.initLocation(mHandlerId);
                     if(initLocationRet == 0)
                     {
+                        isRudderUse = false;
                         btnLoadMap.setVisibility(View.VISIBLE);
                         btnStartBuildMap.setVisibility(View.VISIBLE);
                         btnStopBuildMap.setVisibility(View.GONE);
@@ -441,7 +448,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     }
                     break;
                 case R.id.btnUpdate:
-                    mNaviPack.setUpdateNaviPackFile(mHandlerId, Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/start_anmiation.png",updateCallback);
+                    mNaviPack.setUpdateNaviPackFile(mHandlerId, Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/NaviPack",updateCallback);
                     break;
                 default:
 
@@ -453,12 +460,12 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     private UpdateCallback updateCallback = new UpdateCallback() {
         @Override
         public void onSendSuccess(boolean isSuccess, int code) {
-            Log.d(TAG,"onSendSuccess: "+isSuccess + " code = "+code);
+            updateTvMsg("升级包发送"+ (isSuccess==true?"成功":"失败") + " code = "+code);
         }
 
         @Override
         public void onUpdateSuccess(boolean isSuccess, int code) {
-            Log.d(TAG,"onUpdateSuccess: "+isSuccess + " code = "+code);
+            updateTvMsg("程序升级"+ (isSuccess==true?"成功，重启生效":"失败") + " code = "+code);
         }
     };
 
@@ -479,8 +486,11 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
     @Override
     protected void onPause() {
+        isRudderUse = false;
+        mNaviPack.setOnGetDeviceMsgCallbacks(null,null);
         mSpeedW = .0f;
         mSpeedV = .0f;
+        mChsControl.setChsSpeed(mHandlerId,mSpeedV,mSpeedW);
         mNaviPack.destroy(mHandlerId);
         super.onPause();
     }

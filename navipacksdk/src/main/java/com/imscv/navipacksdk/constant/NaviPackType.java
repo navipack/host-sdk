@@ -52,7 +52,7 @@ public class NaviPackType {
     /**
      * 消息类型为更新传感器数据
      * 子类型可以为：
-     *       {@link #CODE_SENSOR_LIDAR}
+     *       {@link #CODE_SENSOR_ST_LIDAR2D}
      *       {@link #CODE_SENSOR_ULTRASON}
      *       {@link #CODE_SENSOR_COLLISION}
      *       {@link #CODE_SENSOR_GROUND}
@@ -62,7 +62,7 @@ public class NaviPackType {
     /**
      * 雷达传感器原始数据
      */
-    public static final int CODE_SENSOR_LIDAR = 0;
+    public static final int CODE_SENSOR_ST_LIDAR2D = 0;
     /**
      * 超声波传感器原始数据
      */
@@ -95,14 +95,9 @@ public class NaviPackType {
      * 子类型为：
      * {@link #CODE_TARGET_REACH_POINT}
      */
-    public static final int DEVICE_MSG_TYPE_UPDATE_ALG_TARGET_CTRL = 0x05;
+    public static final int DEVICE_MSG_TYPE_NAVIGATION = 0x05;
 
 
-    /**
-     * 消息类型为获取navipack的版本信息
-     * 子类型为版本代码
-     */
-    public static final int DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION = 0X06;
 
     /**
      * 到达运动点
@@ -120,5 +115,17 @@ public class NaviPackType {
     public static final int CODE_TARGET_PATH_UPGRADE = 0x02;
 
 
-    public static final int DEVICE_MSG_TYPE_MAX_VALUE = 0x10;
+
+    /**
+     * 消息类型为获取navipack的版本信息
+     * 子类型为版本代码
+     */
+    public static final int DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION = 0X06;
+
+
+
+    /**
+     * 定义基本消息的最大值 不开放使用
+     */
+    protected static final int DEVICE_MSG_TYPE_MAX_VALUE = 0x10;
 }

@@ -40,16 +40,58 @@ public class MainActivity extends Activity {
 
     private Handler mHandler = new Handler();
 
+
+    private Runnable testRun = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "testRun start:");
+            mNaviPackSdk = NaviPackSdk.getInstance();
+            int mHandler = mNaviPackSdk.createHandler(NaviPackSdk.ConnectTypeEnum.SERIAL_CON);
+            Log.d(TAG, "createHandler:" + mHandler);
+            int openRet = mNaviPackSdk.open(mHandler, "/dev/ttyACM0", 115200);
+            Log.d(TAG, "open:" + openRet);
+            int testSpeed = 0;
+            while (true) {
+                testSpeed+=10;
+                mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
+                try {
+                    Log.d(TAG,"setSpeed  = " + testSpeed);
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                if(testSpeed > 5000)
+                {
+                    try {
+                        Thread.sleep(5000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    testSpeed = 0;
+                    mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
+                    mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
+                    mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
+                    break;
+                }
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         Log.d(TAG,"LoginActivity:");
 
-        initView();
-        initPara();
-
-        switchButton.setText("Manual");
+        boolean isTest = false;
+        if (isTest) {
+            Thread t = new Thread(testRun);
+            t.start();
+        } else {
+            initView();
+            initPara();
+            switchButton.setText("Manual");
+        }
     }
 
     @Override
@@ -85,7 +127,7 @@ public class MainActivity extends Activity {
         editText.setText(deviceName);
     }
 
-    public void initPara(){
+    public void initPara() {
         mNaviPackSdk = NaviPackSdk.getInstance();
 
     }
@@ -138,16 +180,15 @@ public class MainActivity extends Activity {
         Bundle bundle = new Bundle();
         bundle.putSerializable("device", device);
         intent.putExtras(bundle);
-        intent.putExtra("handlerID",mId);
-        intent.putExtra("isUseTcp",mConnectType== NaviPackSdk.ConnectTypeEnum.TCP_CON?true:false);
+        intent.putExtra("handlerID", mId);
+        intent.putExtra("isUseTcp", mConnectType == NaviPackSdk.ConnectTypeEnum.TCP_CON ? true : false);
         MainActivity.this.startActivity(intent);
     }
 
     View.OnClickListener onClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            switch(v.getId())
-            {
+            switch (v.getId()) {
                 case R.id.switch_button:
                     if (switchButton.getText().equals("Auto")) {
                         showAutoView();

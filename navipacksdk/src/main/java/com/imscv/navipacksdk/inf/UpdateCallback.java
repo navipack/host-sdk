@@ -9,12 +9,12 @@ public interface UpdateCallback {
      * @param isSuccess 发送是否成功
      * @param code      结果码
      */
-    void onSendSuccess(boolean isSuccess, int code);
+    void onSendSuccess(boolean isSuccess,int code);
 
     /**
      * 升级回调
      * @param isSuccess 升级是否可用
      * @param code      结果码
      */
-    void onUpdateSuccess(boolean isSuccess, int code);
+    void onUpdateSuccess(boolean isSuccess,int code);
 }
