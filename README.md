@@ -30,11 +30,10 @@ https://item.taobao.com/item.htm?spm=a230r.1.14.58.Z1QTOX&id=7915403646&ns=1&abb
  1. 当前为开发者提供指令的配置方式。配置步骤如下：
  2. 执行 adb shell 进入系统
  3. 执行 su 切换用户为超级用户
- 4. 执行 wifi_start.out ssid
- 5. password来配置网络(ssid和password别搞错了)
+ 4. 执行 wifi_start.out ssid password来配置网络(ssid和password别搞错了)
+ 5. 执行后10秒左右执行netcfg看是否有设备为wlan并是否存在ip地址，如果有则成功。
  6. 执行后10秒左右执行netcfg看是否有设备为wlan并是否存在ip地址，如果有则成功。
- 7. 执行后10秒左右执行netcfg看是否有设备为wlan并是否存在ip地址，如果有则成功。
- 8. 否则重启，再来一次上述指令。
+ 7. 否则重启，再来一次上述指令。
 
 ##串口配置
 
