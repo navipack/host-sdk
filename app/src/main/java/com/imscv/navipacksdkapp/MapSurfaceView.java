@@ -78,7 +78,7 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
      **/
     public static final int TIME_IN_FRAME = 20;
 
-    private int paintColor = Color.WHITE;//默认画笔颜色为黑色
+    private int paintColor = android.graphics.Color.WHITE;//默认画笔颜色为黑色
     private float paintWidth = 2f;//默认画笔宽度
     private Paint.Style paintStyle = Paint.Style.STROKE;//默认画笔风格
     private int paintAlph = 128;//255;//默认不透明

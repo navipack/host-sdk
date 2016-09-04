@@ -11,7 +11,7 @@ public class AlgMapData {
     /**
      * 图像的最大内存ja
      */
-    public static final int MAX_MAP_SIZE = 800*800;
+    public static final int MAX_MAP_SIZE = 2000*2000;
 
     /**
      * 图像宽度

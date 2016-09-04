@@ -24,6 +24,7 @@ import com.imscv.navipacksdk.inf.UpdateCallback;
 import com.imscv.navipacksdk.module.SelfStream;
 import com.imscv.navipacksdk.regparam.AlgStatusReg;
 import com.imscv.navipacksdk.tools.PosTransform;
+import com.imscv.navipacksdk.tools.StringOperate;
 import com.imscv.navipacksdkapp.control.ChsControl;
 import com.imscv.navipacksdkapp.view.Rudder;
 
@@ -48,6 +49,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     private Button btnInitLocation;
     private Button btnSelfMsg;
     private Button btnUpdateNavipack;
+    private Button btnSaveMap;
 
     private TextView tvErrorShow;
     private Rudder mRudder;
@@ -121,6 +123,9 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         btnUpdateNavipack = (Button) findViewById(R.id.btnUpdate);
         btnUpdateNavipack.setOnClickListener(btnClickListener);
 
+        btnSaveMap = (Button) findViewById(R.id.btnSaveMap);
+        btnSaveMap.setOnClickListener(btnClickListener);
+
         mScrollView = (ScrollView) findViewById(R.id.scrollView);
 
         tvErrorShow = (TextView) findViewById(R.id.tvErrorShow);
@@ -132,13 +137,20 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
         mNaviPack.setOnGetDeviceMsgCallbacks(deviceMsgListener,deviceErrorMsgListener);
 
+
         mHandler = new Handler()
         {
+            CharSequence errText;
             public void handleMessage(Message msg) {
                 switch (msg.what) {
                     //判断发送的消息
                     case K_WHAT_ERROR_MSG:
                         //更新View
+                        errText = tvErrorShow.getText();
+                        if(errText.length()>2*1024)
+                        {
+                            tvErrorShow.setText(errText.subSequence(1024,errText.length()));
+                        }
                         tvErrorShow.append("\n"+(String)msg.obj);
                         this.post(new Runnable() {
                             @Override
@@ -204,6 +216,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         @Override
         public void onGetDeviceMsg(int id, int msgType, int msgCode, Object param) {
             String deviceMsgStr;
+            //    Log.e(TAG,"msgType = " + msgType + "  msgCode = " + msgCode);
             if(mHandlerId != id)
             {
                 Log.e(TAG,"mHandlerId = " + mHandlerId + "  RECV ID = " + id);
@@ -217,7 +230,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_MAP://地图有更新
                     if(msgCode == NaviPackType.CODE_MAP_LIDAR) {
 
-                        mNaviPack.getMapLayer(mHandlerId,mapData, NaviPackType.CODE_MAP_LIDAR);
+                        mNaviPack.getMapLayer(mHandlerId,mapData,NaviPackType.CODE_MAP_LIDAR);
                         updateTvMsg( "地图有更新 ，图像长度：" + mapData.width + " 图像宽度："+mapData.height);
                         lidarMap = mapData.getBitmap();
                         if(lidarMap != null)
@@ -271,9 +284,14 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     }
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION:
-                    updateTvMsg("navipack 套件版本为："+mNaviPack.transformVersionCode(msgCode));
+                    updateTvMsg(msgCode + "navipack 套件版本为："+mNaviPack.transformVersionCode(msgCode));
                     break;
-
+                case NaviPackType.DEVICE_MSG_TYPE_SET_SAVE_CURRENT_MAP:
+                    updateTvMsg("navipack 保存当前地图ID = "+msgCode);
+                    break;
+                case NaviPackType.DEVICE_MSG_TYPE_SET_LOAD_MAP_FROME_LIST:
+                    updateTvMsg("navipack 加载当前地图ID = "+msgCode);
+                    break;
 
                 default:break;
             }
@@ -293,7 +311,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
             Log.d(TAG,"onSteeringWheelChanged " + tv + "  " + av);
             mSpeedV = tv*3;
-            mSpeedW = -av*10;
+            mSpeedW = av*10;
 
         }
 
@@ -343,7 +361,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     }
                     break;
                 case R.id.btnStartBuildMap:
-                    Log.d(TAG,"btnStartBuildMap");
+                    Log.d(TAG,"btnStartBuildMap Auto");
                     int buildMapRet = 0;
                     mNaviPack.startMapping(mHandlerId,0);
                     if(buildMapRet == 0)
@@ -450,12 +468,17 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                 case R.id.btnUpdate:
                     mNaviPack.setUpdateNaviPackFile(mHandlerId, Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/NaviPack",updateCallback);
                     break;
+                case R.id.btnSaveMap:
+                    //mNaviPack.saveCurrentMapToMapList(mHandlerId,2);
+                    mNaviPack.loadMapFromMapList(mHandlerId,2);
+                    break;
                 default:
 
                     break;
             }
         }
     };
+
 
     private UpdateCallback updateCallback = new UpdateCallback() {
         @Override
@@ -474,7 +497,15 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         while(true) {
             if(isRudderUse)
             {
-                mChsControl.setChsSpeed(mHandlerId,mSpeedV,mSpeedW);
+                if(mSpeedV > 200)
+                {
+                    mSpeedV = 200;
+                }
+                if(mSpeedW > 200)
+                {
+                    mSpeedW = 200;
+                }
+                mChsControl.setChsSpeed(mHandlerId,mSpeedV,-mSpeedW);
             }
             try {
                 Thread.sleep(100);
@@ -486,11 +517,8 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
     @Override
     protected void onPause() {
-        isRudderUse = false;
-        mNaviPack.setOnGetDeviceMsgCallbacks(null,null);
         mSpeedW = .0f;
         mSpeedV = .0f;
-        mChsControl.setChsSpeed(mHandlerId,mSpeedV,mSpeedW);
         mNaviPack.destroy(mHandlerId);
         super.onPause();
     }

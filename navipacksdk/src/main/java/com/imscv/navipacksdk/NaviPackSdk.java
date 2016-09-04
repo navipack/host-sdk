@@ -14,25 +14,35 @@ import com.imscv.navipacksdk.data.CarrierParam;
 import com.imscv.navipacksdk.data.NaviPackParam;
 import com.imscv.navipacksdk.inf.DeviceErrorMsgListener;
 import com.imscv.navipacksdk.inf.DeviceMsgListener;
+import com.imscv.navipacksdk.inf.OpenDeviceListener;
 import com.imscv.navipacksdk.inf.UpdateCallback;
+import com.imscv.navipacksdk.module.MapFileBuffer;
 import com.imscv.navipacksdk.module.SelfStream;
 import com.imscv.navipacksdk.regparam.AlgStatusReg;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 
 /**
  * 导航sdk的主要接口部分
  * Created by dell on 2016/5/25.
  */
-public class NaviPackSdk extends NaviPackType{
+public class NaviPackSdk extends NaviPackType {
     private static final String TAG = "NaviPackSdk";
     private static final boolean VERBOSE = false;
 
+    private final int K_WHAT_DEVICE_MSG = 0;
+    private final int K_WHAT_DEVIDE_ERROR_MSG = 1;
+    private final int K_WHAT_RECV_MAP_BUF = 2;
 
-    private static final int K_WHAT_DEVICE_MSG = 0;
-    private static final int K_WHAT_DEVIDE_ERROR_MSG = 1;
+    private final int K_WHAT_SEND_UPDATE_FILE = 10;
+    private final int K_WHAT_SEND_RESPONSE = 11;
+    private final int K_WHAT_SEND_SAVE_MAP = 12;
+    private final int K_WHAT_OPEN_DEVICE = 13;
+    private final int K_WHAT_SEND_LOAD_LOACL_MAP = 14;
 
-    private static final int K_WHAT_SEND_UPDATE_FILE = 0;
-    private static final int K_WHAT_SEND_RESPONSE = 2;
 
     public enum ConnectTypeEnum {
         TCP_CON, SERIAL_CON
@@ -46,11 +56,35 @@ public class NaviPackSdk extends NaviPackType{
      * 消息处理线程实例
      */
     private static SdkMessageDealThread sSdkessageDealThread = null;
+    /**
+     * 大数据处理线程
+     */
     private static NaviPackMsgSendThread sNaviPackMsgSendThread = null;
 
+    /**
+     * naviPack消息的回调
+     */
     private DeviceMsgListener mDeviceMsgListener = null;
+    /**
+     * naviPack的错误消息回调
+     */
     private DeviceErrorMsgListener mDeviceErrorMsgListener = null;
+    /**
+     * 程序升级的回调
+     */
     private UpdateCallback mUpdateCallback = null;
+
+
+    /**
+     * 开启设备的回调
+     */
+    private OpenDeviceListener mOpenDevicesListener = null;
+
+
+
+    private File mMapFile = null;
+    private FileOutputStream mMapFileOutputStream = null;
+    private int mMapFileWriteSize = 0;
 
 
     /**
@@ -102,11 +136,11 @@ public class NaviPackSdk extends NaviPackType{
 
     /**
      * 将版本代码转换为版本号
+     *
      * @param version 版本代码
      * @return 版本号
      */
-    public String transformVersionCode(int version)
-    {
+    public String transformVersionCode(int version) {
         String ver = (int) (version >> 24 & 0xff) + "." + (int) (version >> 16 & 0xff) + "." + (int) (version & 0xffff);
         return ver;
     }
@@ -123,7 +157,24 @@ public class NaviPackSdk extends NaviPackType{
 
 
     /**
-     * 开启网络接收
+     * 以异步方式连接NaviPack
+     *
+     * @param handlerId NaviPack对象ID
+     * @param filename  如果链接类型 { @link ConnectTypeEnum }为TCP_CON,则fileName为IP地址
+     *                  若为SERIAL_CON,则fileName为串口地址
+     * @param param     如果链接类型 { @link ConnectTypeEnum }为TCP_CON,则param为监听端口号，为固定可以随意给定
+     *                  若为SERIAL_CON,则param为串口波特率 暂时只支持115200
+     * @return 0表示连接成功，<0表示失败
+     */
+    public int open(int handlerId, String filename, int param, OpenDeviceListener listener) {
+        mOpenDevicesListener = listener;
+        Message msg = sNaviPackMsgSendThread.obtainMessage(K_WHAT_OPEN_DEVICE, handlerId, param, filename);
+        msg.sendToTarget();
+        return 0;
+    }
+
+    /**
+     * 以同步方式连接NaviPack
      *
      * @param handlerId NaviPack对象ID
      * @param filename  如果链接类型 { @link ConnectTypeEnum }为TCP_CON,则fileName为IP地址
@@ -309,11 +360,38 @@ public class NaviPackSdk extends NaviPackType{
 
 
     /**
+     * 保存当前地图到NaviPack地图列表
+     * @param handlerId NaviPack对象ID
+     * @param mapId     要保存的地图ID
+     * @return          消息是否发送成功 小于零表示发送失败
+     */
+    public int saveCurrentMapToMapList(int handlerId, int mapId) {
+        if(mapId <1 || mapId >8)
+        {
+            return -1;
+        }
+        return native_saveCurrentMapToMapList(handlerId,mapId);
+    }
+
+    /**
+     * 远端重新再入指定地图
+     * @param handlerId  NaviPack对象ID
+     * @param mapId     要载入的地图ID
+     * @return          消息是否发送成功 小于零表示发送失败
+     */
+    public int loadMapFromMapList(int handlerId,int mapId)
+    {
+        return native_loadMap(handlerId,mapId);
+    }
+
+
+    /**
      * 设置wifi
+     *
      * @param handlerId NaviPack对象ID
      * @param ssid      wifi名称
      * @param pwd       wifi密码
-     * @return          是否发送成功
+     * @return 是否发送成功
      * @since 设置成功后网络会断开，如果使用tcp链接的话，请重新链接设备
      */
     public int setWifiParam(int handlerId, String ssid, String pwd) {
@@ -322,6 +400,7 @@ public class NaviPackSdk extends NaviPackType{
 
     /**
      * 发送控制器厂商自定义消息
+     *
      * @param handlerId NaviPack对象ID
      * @param stream    数据流
      * @return
@@ -334,7 +413,6 @@ public class NaviPackSdk extends NaviPackType{
      * 构造函数
      */
     private NaviPackSdk() {
-
         native_init();
         HandlerThread sdkEventThread = new HandlerThread("SdkEventThread");
         sdkEventThread.start();
@@ -387,6 +465,8 @@ public class NaviPackSdk extends NaviPackType{
 
     private native int native_getMapList(int id, int[] id_buffer);
 
+    private native int native_saveCurrentMapToMapList(int id, int mapId);//保存地图
+
     private native int native_loadMap(int id, int map_id);
 
     private native int native_setGetCurrentMap(int id);
@@ -411,7 +491,11 @@ public class NaviPackSdk extends NaviPackType{
 
     private native int native_updateNaviPackFile(int id, String fileName);//升级文件
 
+    private native int native_setSaveMap(int id, String filePath, String fileName);//保存地图
+
     private native int native_setSelfStream(int id, byte[] stream);
+
+    private native int native_sendFile(int id, int type, String filePath, String fileName);//发送文件
 
 
     // TODO: 2016/5/26 native --> java
@@ -442,6 +526,18 @@ public class NaviPackSdk extends NaviPackType{
         msg.sendToTarget();
     }
 
+    /**
+     * 接收存储地图数据的一块内存
+     */
+    private void onRecvMapFileBuf(int id, byte[] fileName, int partNum, byte[] buf, int isOk, int fileLen) {
+        //第一帧数据
+        Log.d(TAG, "onRecvMapFileBuf " + new String(fileName));
+        MapFileBuffer mapFileBuffer = new MapFileBuffer(new String(fileName), buf, buf.length, fileLen, partNum);
+        Message msg = sSdkessageDealThread.obtainMessage(K_WHAT_RECV_MAP_BUF, 0, 0, mapFileBuffer);
+        msg.sendToTarget();
+
+    }
+
     // TODO: 2016/5/26 dealThread
 
     /**
@@ -450,6 +546,30 @@ public class NaviPackSdk extends NaviPackType{
     private class SdkMessageDealThread extends Handler {
         public SdkMessageDealThread(Looper looper) {
             super(looper);
+        }
+
+        private void saveMapFile(MapFileBuffer fileBuffer) throws IOException {
+            if (fileBuffer.mPartNum == 1) {
+                if (mMapFileOutputStream != null) {
+                    mMapFileOutputStream.close();
+                }
+
+                mMapFileWriteSize = 0;
+                mMapFile = new File(fileBuffer.mFileName);
+                mMapFileOutputStream = new FileOutputStream(mMapFile);
+            }
+
+            if (mMapFileOutputStream == null || mMapFile == null) {
+                return;
+            }
+
+            mMapFileOutputStream.write(fileBuffer.mFileBuf);
+            mMapFileWriteSize += fileBuffer.mPartSize;
+
+            if (mMapFileWriteSize == fileBuffer.mFileSize) {
+                //写入成功
+                Log.d(TAG, "mMapFileWriteSize write data success!!!!");
+            }
         }
 
         @Override
@@ -474,6 +594,13 @@ public class NaviPackSdk extends NaviPackType{
                         mDeviceErrorMsgListener.onGetDeviceErrorMsg(msg.arg1, msg.arg2, (int) msg.obj, bundle.getString("errInfo", "null data"));
                     }
                     break;
+                case K_WHAT_RECV_MAP_BUF:
+                    try {
+                        saveMapFile((MapFileBuffer) msg.obj);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    break;
                 default:
                     super.handleMessage(msg);
                     break;
@@ -483,6 +610,7 @@ public class NaviPackSdk extends NaviPackType{
 
 
     private static final int SET_UPDATE_FILE = 0xa1;
+    private static final int SEND_FILE_TYPE_MAP_PACKAGE = 0xa6;
 
     private class NaviPackMsgSendThread extends Handler {
         public NaviPackMsgSendThread(Looper looper) {
@@ -505,6 +633,13 @@ public class NaviPackSdk extends NaviPackType{
                         }
                     }
                     break;
+                case K_WHAT_OPEN_DEVICE:
+                    int openRet = native_open(msg.arg1, (String) msg.obj, msg.arg2);
+                    if (mOpenDevicesListener != null) {
+                        mOpenDevicesListener.onOpenSuccess(openRet == 0 ? true : false);
+                    }
+                    break;
+
                 default:
                     super.handleMessage(msg);
                     break;

@@ -33,6 +33,7 @@ public class Rudder extends View {
     public static final int ACTION_RUDDER_TURN_FORWARD = 3;
     public static final int ACTION_RUDDER_TURN_BACKWARD = 4;
 
+
     private static final float WHEEL_RUDDER_RATIO = 2.25f;
 
     // 毫弧度  相当于8度

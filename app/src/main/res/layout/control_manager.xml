@@ -57,5 +57,11 @@
         android:layout_height="wrap_content"
         android:text="升级套件"/>
 
+    <Button
+        android:id="@+id/btnSaveMap"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="保存当前地图"/>
+
 
 </LinearLayout>

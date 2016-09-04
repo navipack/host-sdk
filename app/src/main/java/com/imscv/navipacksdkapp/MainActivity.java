@@ -2,8 +2,10 @@ package com.imscv.navipacksdkapp;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.os.Bundle;
+import android.os.Parcel;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,8 +19,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.imscv.navipacksdk.NaviPackSdk;
+import com.imscv.navipacksdk.inf.OpenDeviceListener;
+import com.imscv.navipacksdk.module.SelfStream;
+import com.imscv.navipacksdk.tools.StringOperate;
 import com.imscv.navipacksdkapp.model.Device;
 
+import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity {
@@ -27,11 +41,11 @@ public class MainActivity extends Activity {
     private int mId = -1;
 
     private NaviPackSdk mNaviPackSdk = null;
-    private Button switchButton, searchButton, connectButtonTCP,connectButtonSerial;
+    private Button switchButton, searchButton, connectButtonTCP, connectButtonSerial;
     private EditText editText;
     private ListView listView;
 
-    private String deviceName = "/dev/ttyACM1";
+    private String deviceName = "192.168.1.120";
     private int deviceParam = 115200;
     private NaviPackSdk.ConnectTypeEnum mConnectType = NaviPackSdk.ConnectTypeEnum.SERIAL_CON;
 
@@ -39,59 +53,21 @@ public class MainActivity extends Activity {
     private DeviceAdapter adapter = new DeviceAdapter();
 
     private Handler mHandler = new Handler();
+    private Device mDevice;
 
 
-    private Runnable testRun = new Runnable() {
-        @Override
-        public void run() {
-            Log.d(TAG, "testRun start:");
-            mNaviPackSdk = NaviPackSdk.getInstance();
-            int mHandler = mNaviPackSdk.createHandler(NaviPackSdk.ConnectTypeEnum.SERIAL_CON);
-            Log.d(TAG, "createHandler:" + mHandler);
-            int openRet = mNaviPackSdk.open(mHandler, "/dev/ttyACM0", 115200);
-            Log.d(TAG, "open:" + openRet);
-            int testSpeed = 0;
-            while (true) {
-                testSpeed+=10;
-                mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
-                try {
-                    Log.d(TAG,"setSpeed  = " + testSpeed);
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                if(testSpeed > 5000)
-                {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    testSpeed = 0;
-                    mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
-                    mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
-                    mNaviPackSdk.setSpeed(mHandler, testSpeed, testSpeed);
-                    break;
-                }
-            }
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Log.d(TAG,"LoginActivity:");
+        Log.d(TAG, "LoginActivity:");
 
-        boolean isTest = false;
-        if (isTest) {
-            Thread t = new Thread(testRun);
-            t.start();
-        } else {
+
             initView();
             initPara();
             switchButton.setText("Manual");
-        }
+
     }
 
     @Override
@@ -129,7 +105,7 @@ public class MainActivity extends Activity {
 
     public void initPara() {
         mNaviPackSdk = NaviPackSdk.getInstance();
-
+        Log.e(TAG,"writeFileToSDwriteFileToSDwriteFileToSDwriteFileToSD");
     }
 
     AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
@@ -158,22 +134,28 @@ public class MainActivity extends Activity {
     }
 
     private void connectDevice(final Device device) {
+        mDevice = device;
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                int openRet = mNaviPackSdk.open(device.id, device.fileName, device.param);
-                if (openRet == 0){
-                    Toast.makeText(MainActivity.this, "连接成功!", Toast.LENGTH_SHORT).show();
-                    showControlView(device);
-                } else {
-                    Toast.makeText(MainActivity.this, "连接失败！", Toast.LENGTH_SHORT).show();
-                    mNaviPackSdk.destroy(device.id);
-                }
+                mNaviPackSdk.open(device.id, device.fileName, device.param,openDeviceListener);
             }
-        },10);
+        }, 100);
 
     }
 
+    private OpenDeviceListener openDeviceListener = new OpenDeviceListener() {
+        @Override
+        public void onOpenSuccess(boolean isSuccess) {
+            if (isSuccess) {
+                Toast.makeText(MainActivity.this, "连接成功!", Toast.LENGTH_SHORT).show();
+                showControlView(mDevice);
+            } else {
+                Toast.makeText(MainActivity.this, "连接失败！", Toast.LENGTH_SHORT).show();
+                mNaviPackSdk.destroy(mDevice.id);
+            }
+        }
+    };
 
     private void showControlView(Device device) {
         Intent intent = new Intent(MainActivity.this, NaviPackShowActivity.class);
@@ -218,18 +200,16 @@ public class MainActivity extends Activity {
         }
     };
 
-    public void updataSerchList(final int uuid, final String ip, final int port)
-    {
+    public void updataSerchList(final int uuid, final String ip, final int port) {
         mHandler.post(new Runnable() {
             @Override
             public void run() {
-                Device device = new Device(ip,port,uuid);
+                Device device = new Device(ip, port, uuid);
                 devices.add(device);
                 adapter.notifyDataSetChanged();
             }
         });
     }
-
 
 
     public class DeviceAdapter extends BaseAdapter {

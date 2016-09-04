@@ -123,9 +123,22 @@ public class NaviPackType {
     public static final int DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION = 0X06;
 
 
+    /**
+     * 消息类型为保存当前地图结果
+     * 子类型为结果代号  小于零表示失败 否则表示地图编号
+     */
+    public static final int DEVICE_MSG_TYPE_SET_SAVE_CURRENT_MAP = 0x08;
+
+    /**
+     * 消息类型为从地图列表中加载地图
+     * 子类型为结果代号  小于零表示失败 否则表示加载的地图编号
+     */
+    public static final int DEVICE_MSG_TYPE_SET_LOAD_MAP_FROME_LIST = 0x09;
 
     /**
      * 定义基本消息的最大值 不开放使用
      */
-    protected static final int DEVICE_MSG_TYPE_MAX_VALUE = 0x10;
+    protected static final int DEVICE_MSG_TYPE_MAX_VALUE = 0XA0;
+
+
 }
