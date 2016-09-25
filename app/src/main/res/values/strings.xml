@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">NaviPackSdk</string>
+    <string name="action_settings">Settings</string>
+    <string name="drawer_open"> Drawer is opened </string>
+    <string name="drawer_close">Drawer is closed </string>
+    <string name="global_title">推酷</string>
 </resources>

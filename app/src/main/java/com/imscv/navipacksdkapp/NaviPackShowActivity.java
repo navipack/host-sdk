@@ -22,6 +22,7 @@ import com.imscv.navipacksdk.inf.DeviceErrorMsgListener;
 import com.imscv.navipacksdk.inf.DeviceMsgListener;
 import com.imscv.navipacksdk.inf.UpdateCallback;
 import com.imscv.navipacksdk.module.SelfStream;
+import com.imscv.navipacksdk.module.Update;
 import com.imscv.navipacksdk.regparam.AlgStatusReg;
 import com.imscv.navipacksdk.tools.PosTransform;
 import com.imscv.navipacksdk.tools.StringOperate;
@@ -36,6 +37,9 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     private static final String TAG = "NaviPackSdk";
     private static final int K_WHAT_ERROR_MSG = 0;
     private static final int K_WHAT_SET_VIEW_DOWM = 1;
+    //以下两个参数需要根据自己的底盘进行调节。设置控制的加速度
+    private static final int MAX_ACCE_V = 1000;   //1000mm/s
+    private static final int MAX_ACCE_W = 1000;//1000豪弧/s
     private int mHandlerId;
     private boolean isUseTcp = false;
     private MapSurfaceView mapSurfaceView;
@@ -67,6 +71,8 @@ public class NaviPackShowActivity extends Activity implements Runnable {
     private AlgMapData mapData;
     private Bitmap lidarMap;
     private AlgStatusReg statusReg;
+
+    private int mNaviMode=0;
 
 
 
@@ -216,7 +222,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         @Override
         public void onGetDeviceMsg(int id, int msgType, int msgCode, Object param) {
             String deviceMsgStr;
-            //    Log.e(TAG,"msgType = " + msgType + "  msgCode = " + msgCode);
+        //    Log.e(TAG,"msgType = " + msgType + "  msgCode = " + msgCode);
             if(mHandlerId != id)
             {
                 Log.e(TAG,"mHandlerId = " + mHandlerId + "  RECV ID = " + id);
@@ -284,13 +290,17 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     }
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION:
-                    updateTvMsg(msgCode + "navipack 套件版本为："+mNaviPack.transformVersionCode(msgCode));
+                    updateTvMsg("navipack 套件版本为："+mNaviPack.transformVersionCode(msgCode));
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_SET_SAVE_CURRENT_MAP:
                     updateTvMsg("navipack 保存当前地图ID = "+msgCode);
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_SET_LOAD_MAP_FROME_LIST:
                     updateTvMsg("navipack 加载当前地图ID = "+msgCode);
+                    break;
+                case NaviPackType.DEVICE_MSG_TYPE_UPDATE_MAP_LIST:
+                    updateTvMsg("navipack 地图列表有更新 = "+msgCode);
+
                     break;
 
                 default:break;
@@ -326,6 +336,7 @@ public class NaviPackShowActivity extends Activity implements Runnable {
         }
     };
 
+    public int updateId = 0;
     private View.OnClickListener btnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -469,9 +480,16 @@ public class NaviPackShowActivity extends Activity implements Runnable {
                     mNaviPack.setUpdateNaviPackFile(mHandlerId, Environment.getExternalStorageDirectory().getAbsolutePath().toString()+"/NaviPack",updateCallback);
                     break;
                 case R.id.btnSaveMap:
-                    //mNaviPack.saveCurrentMapToMapList(mHandlerId,2);
-                    mNaviPack.loadMapFromMapList(mHandlerId,2);
-                    break;
+                    updateId++;
+                    //mNaviPack.saveCurrentMapToMapList(mHandlerId,3);
+                    Log.d(TAG,"btnSaveMap:" + ((updateId%2)+1));
+                    mNaviPack.loadMapFromMapList(mHandlerId,(updateId%2)+1);
+                    //int[] mapId = new int[8];
+                    //int mapNum = mNaviPack.getMapList(mHandlerId,mapId);
+                    //updateTvMsg("mapNum = " + mapNum + "  mapId"+mapId[0]);
+                    //mNaviMode++;
+                    //mNaviPack.setChangeNaviPackMode(mHandlerId,mNaviMode%2);
+                 break;
                 default:
 
                     break;
@@ -494,21 +512,42 @@ public class NaviPackShowActivity extends Activity implements Runnable {
 
     @Override
     public void run() {
+        float lastSpeedV = 0.0f;
+        float lastSpeedW = 0.0f;
+
+        float nowSpeedV = 0.0f;
+        float nowSpeedW = 0.0f;
+
+        int spinTime = 100;
+        int kp = 1;
         while(true) {
             if(isRudderUse)
             {
-                if(mSpeedV > 200)
+                if(Math.abs((mSpeedV-lastSpeedV)*1000/spinTime) - MAX_ACCE_V > 0)
                 {
-                    mSpeedV = 200;
+                    kp = (mSpeedV-lastSpeedV)>0.0f?1:-1;
+                    //表示加速度太大
+                    nowSpeedV = lastSpeedV + kp*MAX_ACCE_V*(spinTime/1000);
+                }else{
+                    nowSpeedV = mSpeedV;
                 }
-                if(mSpeedW > 200)
+
+                if(Math.abs((mSpeedW-lastSpeedW)*1000/spinTime) - MAX_ACCE_W > 0)
                 {
-                    mSpeedW = 200;
+                    kp = (mSpeedW-lastSpeedW)>0.0f?1:-1;
+                    //表示角加速度太大
+                    nowSpeedW = lastSpeedW + kp*MAX_ACCE_W*(spinTime/1000);
+                }else{
+                    nowSpeedW = mSpeedW;
                 }
-                mChsControl.setChsSpeed(mHandlerId,mSpeedV,-mSpeedW);
+
+
+                mChsControl.setChsSpeed(mHandlerId,nowSpeedV,-nowSpeedW);
+                lastSpeedV = nowSpeedV;
+                lastSpeedW = nowSpeedW;
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(spinTime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

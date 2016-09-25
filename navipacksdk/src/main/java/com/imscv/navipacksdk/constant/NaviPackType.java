@@ -136,6 +136,27 @@ public class NaviPackType {
     public static final int DEVICE_MSG_TYPE_SET_LOAD_MAP_FROME_LIST = 0x09;
 
     /**
+     * 地图列表有更新
+     */
+    public static final int DEVICE_MSG_TYPE_UPDATE_MAP_LIST = 0x10;
+
+    /**
+     * 更改naviPack的出数据模式
+     * 子类型可以为   {@link #CODE_NAVIPACK_MODE_NAVIGATION}  为导航模式
+     *              {@link #CODE_NAVIPACK_MODE_SENSOR｝      为传感器模式，只转发雷达数据，不做导航算法
+     */
+    public static final int DEVICE_MSG_TYPE_SWITCH_NAVIPACK_MODE = 0X11;
+    /**
+     * naviPack套件模式为导航模式  默认模式
+     */
+    public static final int CODE_NAVIPACK_MODE_NAVIGATION = 0X00;
+    /**
+     * naviPack套件模式为传感器模式 只回传激光雷达数据
+     */
+    public static final int CODE_NAVIPACK_MODE_SENSOR = 0X01;
+
+
+    /**
      * 定义基本消息的最大值 不开放使用
      */
     protected static final int DEVICE_MSG_TYPE_MAX_VALUE = 0XA0;

@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     private EditText editText;
     private ListView listView;
 
-    private String deviceName = "192.168.1.120";
+    private String deviceName = "192.168.23.190";
     private int deviceParam = 115200;
     private NaviPackSdk.ConnectTypeEnum mConnectType = NaviPackSdk.ConnectTypeEnum.SERIAL_CON;
 
@@ -158,7 +158,7 @@ public class MainActivity extends Activity {
     };
 
     private void showControlView(Device device) {
-        Intent intent = new Intent(MainActivity.this, NaviPackShowActivity.class);
+        Intent intent = new Intent(MainActivity.this, DrawerActivity.class);
         Bundle bundle = new Bundle();
         bundle.putSerializable("device", device);
         intent.putExtras(bundle);

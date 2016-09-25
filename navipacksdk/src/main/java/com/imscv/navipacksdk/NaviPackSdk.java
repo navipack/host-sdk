@@ -244,6 +244,7 @@ public class NaviPackSdk extends NaviPackType {
      * @since 该函数，将会直接控制设备的运动。如果设备当前正在处于自动导航状态，则会退出自动导航状态。其可以用于手动遥控。
      */
     public int setSpeed(int handlerId, int v, int w) {
+
         return native_setSpeed(handlerId, v, w);
     }
 
@@ -273,6 +274,10 @@ public class NaviPackSdk extends NaviPackType {
         return native_stopMapping(handlerId, save_flag);
     }
 
+    public int getMapList(int handlerId, int[] idBuf)
+    {
+        return native_getMapList(handlerId,idBuf);
+    }
 
     /**
      * 通知naviPack更新地图到本地
@@ -391,7 +396,7 @@ public class NaviPackSdk extends NaviPackType {
      * @param handlerId NaviPack对象ID
      * @param ssid      wifi名称
      * @param pwd       wifi密码
-     * @return 是否发送成功
+     * @return 消息是否发送成功 小于零表示发送失败
      * @since 设置成功后网络会断开，如果使用tcp链接的话，请重新链接设备
      */
     public int setWifiParam(int handlerId, String ssid, String pwd) {
@@ -407,6 +412,17 @@ public class NaviPackSdk extends NaviPackType {
      */
     public int setSelfMsg(int handlerId, SelfStream stream) {
         return native_setSelfStream(handlerId, stream.getBytes());
+    }
+
+    /**
+     * 更改传感器的套件的运行模式，可选模式有导航模式以及雷达传感器模式
+     * @param handlerId NaviPack对象ID
+     * @param mode      模式，0为默认模式及导航模式，1为雷达传感器模式
+     * @return 消息是否发送成功 小于零表示发送失败
+     */
+    public int setChangeNaviPackMode(int handlerId,int mode)
+    {
+        return native_setChangeNaviPackMode(handlerId, mode);
     }
 
     /**
@@ -497,6 +513,7 @@ public class NaviPackSdk extends NaviPackType {
 
     private native int native_sendFile(int id, int type, String filePath, String fileName);//发送文件
 
+    private native int native_setChangeNaviPackMode(int id,int mode);
 
     // TODO: 2016/5/26 native --> java
 
