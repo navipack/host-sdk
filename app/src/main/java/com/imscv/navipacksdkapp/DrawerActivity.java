@@ -75,6 +75,9 @@ public class DrawerActivity extends Activity {
     private boolean isGoRoundBtnShow;               //标记当前巡逻控件是否调出
     private boolean isStartGoRound;                 //标记是否开始进行巡逻
 
+    private Thread mRudderThread;                   //摇杆控制线程
+    private boolean mRudderThreadRun;               //摇杆控制线程标志
+
 
     private Button btnAddPoint, btnDelPoint, btnDelAllPoint, btnStartRound;    //巡逻按键
 
@@ -124,7 +127,7 @@ public class DrawerActivity extends Activity {
         mRudder = (Rudder) findViewById(R.id.chs_rudder);
         mRudder.setRudderListener(rudderListener);
 
-        mNaviPack.setOnGetDeviceMsgCallbacks(deviceMsgListener, deviceErrorMsgListener);
+
 
         mGoRoundLayout = (LinearLayout) findViewById(R.id.lay_rount);
 
@@ -158,7 +161,7 @@ public class DrawerActivity extends Activity {
         isRudderUse = true;
         isGoRoundBtnShow = false;
         isStartGoRound = false;
-        new Thread(rudderRunnable).start();
+        mRudderThread = new Thread(rudderRunnable);
 
 
         //巡逻按键的初始化
@@ -224,7 +227,7 @@ public class DrawerActivity extends Activity {
 
             int spinTime = 100;
             int kp = 1;
-            while (true) {
+            while (mRudderThreadRun) {
                 if (isRudderUse) {
                     //限制速度的突变  如果此处没有反馈速度 则要做相应的修改
                     if (Math.abs((mSpeedV - lastSpeedV)) > 50) {
@@ -369,7 +372,7 @@ public class DrawerActivity extends Activity {
                             }
                         }
                     } else if (msgCode == NaviPackType.CODE_TARGET_TERMINAL) {
-                        updateTvMsg("停止导航");
+                        updateTvMsg("停止运动（急停）");
                         mapSurfaceView.setUpdatePlanedPath(null);
                     } else if (msgCode == NaviPackType.CODE_TARGET_PATH_UPGRADE) {
                         updateTvMsg("到点运动路径有更新");
@@ -602,10 +605,32 @@ public class DrawerActivity extends Activity {
     ;
 
     @Override
+    protected void onResume() {
+        mNaviPack.setOnGetDeviceMsgCallbacks(deviceMsgListener, deviceErrorMsgListener);
+        mRudderThreadRun = true;
+        mRudderThread.start();
+        super.onResume();
+    }
+
+    @Override
     protected void onPause() {
         mSpeedW = .0f;
         mSpeedV = .0f;
+        mNaviPack.setOnGetDeviceMsgCallbacks(null, null);
+        mRudderThreadRun = false;
+        try {
+            mRudderThread.join(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        mNaviPack.destroy(mHandlerId);
+        super.onDestroy();
+
     }
 
     /**

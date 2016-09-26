@@ -45,8 +45,7 @@ public class MainActivity extends Activity {
     private EditText editText;
     private ListView listView;
 
-    private String deviceName = "192.168.23.190";
-    private int deviceParam = 115200;
+    private String deviceName = "192.168.1.127";
     private NaviPackSdk.ConnectTypeEnum mConnectType = NaviPackSdk.ConnectTypeEnum.SERIAL_CON;
 
     private ArrayList<Device> devices = new ArrayList<>();
@@ -105,7 +104,6 @@ public class MainActivity extends Activity {
 
     public void initPara() {
         mNaviPackSdk = NaviPackSdk.getInstance();
-        Log.e(TAG,"writeFileToSDwriteFileToSDwriteFileToSDwriteFileToSD");
     }
 
     AdapterView.OnItemClickListener itemClickListener = new AdapterView.OnItemClickListener() {
@@ -187,14 +185,14 @@ public class MainActivity extends Activity {
                     mConnectType = NaviPackSdk.ConnectTypeEnum.TCP_CON;
                     mId = mNaviPackSdk.createHandler(mConnectType);
                     deviceName = editText.getText().toString();
-                    connectDevice(new Device(deviceName, deviceParam, mId));
+                    connectDevice(new Device(deviceName, 9977, mId));
                     break;
                 case R.id.connect_button_serial:
                     mConnectType = NaviPackSdk.ConnectTypeEnum.SERIAL_CON;
                     mId = mNaviPackSdk.createHandler(mConnectType);
 
                     deviceName = editText.getText().toString();
-                    connectDevice(new Device(deviceName, deviceParam, mId));
+                    connectDevice(new Device(deviceName, 115200, mId));
                     break;
             }
         }
