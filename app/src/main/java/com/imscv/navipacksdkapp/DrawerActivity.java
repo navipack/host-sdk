@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -51,6 +52,7 @@ public class DrawerActivity extends Activity {
 
 
     private static final int K_WHAT_ERROR_MSG = 0;      //错误信息消息
+    private static final int K_WHAT_GO_NEXT_POINT = 1;  //去下一个点
 
     private int mHandlerId;                         //NaviPack对象的ID
     private boolean isUseTcp = false;               //是否使用TCP连接
@@ -77,6 +79,7 @@ public class DrawerActivity extends Activity {
 
     private Thread mRudderThread;                   //摇杆控制线程
     private boolean mRudderThreadRun;               //摇杆控制线程标志
+    private int mNavipackMode;                  //雷达数据模式
 
 
     private Button btnAddPoint, btnDelPoint, btnDelAllPoint, btnStartRound;    //巡逻按键
@@ -111,6 +114,7 @@ public class DrawerActivity extends Activity {
         statusReg = new AlgStatusReg();
         mSpeedV = 0.0f;
         mSpeedW = 0.0f;
+        mNavipackMode = 0;
         Intent intent = getIntent();
         mHandlerId = intent.getIntExtra("handlerID", 0);
 
@@ -150,6 +154,16 @@ public class DrawerActivity extends Activity {
                                 mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
                             }
                         });
+                        break;
+                    case K_WHAT_GO_NEXT_POINT:
+                        Point point = (Point)msg.obj;
+                        try {
+                            Thread.sleep(4000);
+                            setGoToOnePoint(point);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
                         break;
                     default:
                         break;
@@ -248,7 +262,7 @@ public class DrawerActivity extends Activity {
                     }
 
 
-                    Log.d(TAG, "setSpeed:-->" + nowSpeedV + " -->" + -nowSpeedW);
+                    //Log.d(TAG, "setSpeed:-->" + nowSpeedV + " -->" + -nowSpeedW);
                     mChsControl.setChsSpeed(mHandlerId, nowSpeedV, -nowSpeedW);
                     lastSpeedV = nowSpeedV;
                     lastSpeedW = nowSpeedW;
@@ -312,7 +326,7 @@ public class DrawerActivity extends Activity {
     };
 
     /**
-     * 设备消息回调
+     * 设备消息回调  不要做费时操作  不然后果很严重
      */
     DeviceMsgListener deviceMsgListener = new DeviceMsgListener() {
         @Override
@@ -368,7 +382,8 @@ public class DrawerActivity extends Activity {
                         {
                             Point point = mapSurfaceView.getNextPoint();
                             if (point != null) {
-                                setGoToOnePoint(point);
+                                Message msg = mHandler.obtainMessage(K_WHAT_GO_NEXT_POINT, point);
+                                msg.sendToTarget();
                             }
                         }
                     } else if (msgCode == NaviPackType.CODE_TARGET_TERMINAL) {
@@ -501,12 +516,12 @@ public class DrawerActivity extends Activity {
         }
 
         public void selectItem(int position) {
-            Log.d(TAG, "selectItem " + position + " " + menuDrawerAdapter.funAdapter.get(position));
+            //  Log.d(TAG, "selectItem " + position + " " + menuDrawerAdapter.funAdapter.get(position));
 
             //将ActionBar中标题更改为选中的标题项
             //setTitle(menuDrawerAdapter.getItem(position).menuTitle);
             //将当前的侧滑菜单关闭，调用DrawerLayout的closeDrawer（）方法即可
-            mDrawerLayout.closeDrawer(menuDrawer);
+
 
             switch (position) {
                 case DrawerAdapter.LOAD_MAP://载入地图
@@ -554,6 +569,25 @@ public class DrawerActivity extends Activity {
                         changeRoundMode(View.INVISIBLE);
                     }
                     break;
+                case DrawerAdapter.CHANGE_MODE:
+                    TuiCoolMenuItem item = menuDrawerAdapter.getItem(DrawerAdapter.CHANGE_MODE);
+                    if(mNavipackMode == 0)
+                    {
+                        mNavipackMode = 1;
+                        item.menuTitle = "取消转发";
+                    }
+                    else
+                    {
+                        mNavipackMode = 0;
+                        item.menuTitle = "雷达转发";
+                    }
+                    mNaviPack.setChangeNaviPackMode(mHandlerId,mNavipackMode);
+                    break;
+                case DrawerAdapter.GET_NAVIPACK_VERSION:
+                    String localVer = mNaviPack.getSdkVersion();
+                    updateTvMsg("navipack SDK版本为："+localVer);
+                    mNaviPack.setGetNaviPackVersion(mHandlerId);
+                    break;
                 default:
                     break;
             }
@@ -561,6 +595,7 @@ public class DrawerActivity extends Activity {
             menuDrawer.setAdapter(menuDrawerAdapter);
             //将选中的菜单项置为高亮
             menuDrawer.setItemChecked(position, true);
+            mDrawerLayout.closeDrawer(menuDrawer);
         }
 
 
