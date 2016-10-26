@@ -391,8 +391,8 @@ public class DrawerActivity extends Activity {
                         mapSurfaceView.setUpdatePlanedPath(null);
                     } else if (msgCode == NaviPackType.CODE_TARGET_PATH_UPGRADE) {
                         updateTvMsg("到点运动路径有更新");
-                        int[] posX = new int[128];
-                        int[] posY = new int[128];
+                        int[] posX = new int[360];
+                        int[] posY = new int[360];
                         int path_num = mNaviPack.getCurrentPath(mHandlerId, posX, posY);
                         Point[] path = new Point[path_num];
                         for (int i = 0; i < path_num; i++) {
@@ -532,8 +532,9 @@ public class DrawerActivity extends Activity {
                     int buildMapRet = mNaviPack.startMapping(mHandlerId, buildMode);
                     if (buildMode == 0) {   //手动建图模式下应当调出摇杆
                         changeRudderMode(View.VISIBLE);
+                    }else {
+                        changeRoundMode(View.INVISIBLE);
                     }
-                    changeRoundMode(View.INVISIBLE);
                     break;
                 case DrawerAdapter.STOP_BUILD_MAP://保存建图
                     int stopBuildMapRet = mNaviPack.stopMapping(mHandlerId, 0);
@@ -587,6 +588,18 @@ public class DrawerActivity extends Activity {
                     String localVer = mNaviPack.getSdkVersion();
                     updateTvMsg("navipack SDK版本为："+localVer);
                     mNaviPack.setGetNaviPackVersion(mHandlerId);
+                    break;
+                case DrawerAdapter.START_BUILD_MAP_AUTO:
+                    updateTvMsg("navipack 自动建图 ");
+                    changeRudderMode(View.GONE);
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            updateTvMsg("navipack 启动自动建图 ");
+                            mNaviPack.startMapping(mHandlerId, 1);
+                        }
+                    },1000);
+
                     break;
                 default:
                     break;

@@ -38,6 +38,7 @@ public class DrawerAdapter extends BaseAdapter {
     public static final int GO_ROUNDS = 8;           //只需要使用sdk的到点运动功能即可实现
     public static final int CHANGE_MODE = 9;           //使能或者禁用雷达数据转发
     public static final int GET_NAVIPACK_VERSION = 10;           //使能或者禁用雷达数据转发
+    public static final int START_BUILD_MAP_AUTO = 11;
 
     private LayoutInflater mInflater = null;
     //ViewHolder静态类
@@ -56,7 +57,7 @@ public class DrawerAdapter extends BaseAdapter {
         this.context = context;
 
         MenuItems.add(new TuiCoolMenuItem("载入地图", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("开始建图", R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem("手动建图", R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem("保存建图", R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem("初始定位", R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem("到点运动", R.mipmap.option_delay));
@@ -66,6 +67,7 @@ public class DrawerAdapter extends BaseAdapter {
         MenuItems.add(new TuiCoolMenuItem("定点巡逻", R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem("雷达转发", R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem("获取版本", R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem("自动建图", R.mipmap.option_delay));
 
 //        this.mInflater = LayoutInflater.from(context);
 

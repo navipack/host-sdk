@@ -16,7 +16,6 @@
 将AS工程编译，得到的APK可与上述文件配套使用
 因为还在优化阶段，注意，不同版本的两个程序不一定兼容，请务必保证两者是配套使用的。
 
-
 # 目录说明
 Doc:包含android sdk的相关类的doc文档
 navipacksdk:包含自己应用程序所要包含的module
@@ -44,6 +43,7 @@ https://item.taobao.com/item.htm?spm=a230r.1.14.58.Z1QTOX&id=7915403646&ns=1&abb
  2. 使用setWifiParam()接口配置wifi，具体参考demo程序
 
 #串口开启注意事项：
+##使用虚拟串口，与硬件串口不兼容
 一定要确保自己的应用程序有权限来打开串口。
 NaciPack接到上位机上的时候会再上位机上的/dev目录下生成一个ttyACMX的串口，要打开这个串口的APP至少对这个文件具有**RW**的权限。如果操作系统是自己编译，可以在app程序启动前执行chmod +rw /dev/ttyACM*的操作，当然如果有其他更好的办法也是OK的。
 
@@ -58,49 +58,28 @@ NaciPack接到上位机上的时候会再上位机上的/dev目录下生成一�
     ;可以是三边形、四边形，及多边形。不建议采用多边形表示
     ;chassisShapeParamNum：外接几何形状的顶点个数
     chassisShapeParamNum=4
-    ;*****************车子的形状参数X(相对轮轴中心)
+    ;车子的形状参数X(相对轮轴中心)
     chassisShapeParamX=-200,200,200,-200
-    ;*****************车子的形状参数Y(相对轮轴中心)
+    ;车子的形状参数Y(相对轮轴中心)
     chassisShapeParamY=-200,-200,200,200
-    ;是否有IMU传感器：1表示有，0表示无
-    ;****************重点参数注意：（推荐使用1，此时采用雷达上陀螺仪计算角度，否则会采用底盘的编码器计算角度，如果确保自己的编码器输出数据非常准，且轮子不打滑则推荐将参数置为0）
-    bhasIMUSensor=1
-    ;没有IMU情况下，需要该轮间距参数
+    ;载体允许的最大线速度
+    maxLinearVelocity=500
+    ;载体运动时允许的最小线速度
+    minLinearVelocity=100
+    ;载体允许的最大角速度
+    maxAngularVelocity=45
+    ;载体允许的最小角速度
+    minAngularVelocity=0
+    ;载体运动的线加速度
+    LinearAcceleration=200
+    ;载体运动的角加速度
+    AngularAcceleration=20
+    ;是否使用雷达上的IMU传感器计算车体旋转角度：1表示有，0表示无
+    ;****************重点参数注意：（推荐使用1，此时采用雷达上陀螺仪计算角度，否则会采用底盘的编码器计算角度）
+    bAngularPosFromLidarIMUSensor=1
+    ;不使用雷达上的IMU情况下，需要该轮间距参数
     ;****************重点参数
     WheelDistance=232
-    [UltraSensorParam]
-    ;超声波传感器个数
-    ultrasoundSensorNum=8
-    ;相对轮轴中心安装位置
-    ultrasoundSensorX=222,178,62,0,0,0,62,178
-    ultrasoundSensorY=0,116,164,0,0,0,-164,-116
-    ;超声波水平朝向
-    ;如果不是水平朝向，需要将测量数据投影到水平方向
-    ultrasoundSensorOrientationAngle=0,45,90,0,0,0,270,315
-    ;超声波用于NaviPack的最小视距（不建议修改）
-    ultrasoundSensorMinMeasureDistance=30
-    ;超声波用于NaviPack的最大视距（不建议修改）
-    ultrasoundSensorMaxMeasureDistance=600
-    ;超声波视场角
-    ultrasoundSensorFOV=15
-    [DropSensorParam]
-    ;跌落传感器个数
-    dropSensorNum=4
-    ;跌落传感器相对轮轴中心安装位置
-    dropSensorX=50,150,150,50
-    dropSensorY=-150,-50,50,150
-    [CollisionSensorParam]
-    ;碰撞传感器开关量个数
-    collisionSensorNum=2
-    ;碰撞传感器相对轮轴中心安装位置
-    collisionSensorX=113,113
-    collisionSensorY=-113,113
-    [IrSensorParam]
-    ;红外传感器开关量个数
-    irSensorNum=4
-    ;红外传感器相对轮轴中心安装位置
-    irSensorX=60,178,178,60
-    irSensorY=-178,-60,60,178
     [LidarSensorParam]
     ;激光雷达传感器相对轮轴中心安装位置
     ;******************重点参数
@@ -117,28 +96,80 @@ NaciPack接到上位机上的时候会再上位机上的/dev目录下生成一�
     lidarValidDistance=8000
     ;遮挡区域数
     ;******************重点参数
-    lidarShelterNum=4
+    lidarShelterNum=0
     ;设置遮挡区域，以0度开始，逆时针，依次设置遮挡区域（头跟尾不允许遮挡）
     ;******************重点参数
     lidarShelterBegin=45,135,216,282
     lidarShelterEnd=78,144,225,315
-    [NaviPackParam]
-    ;载体允许的最大线速度
-    maxLineVelocity=500
-    ;载体运动时允许的最小线速度
-    minLineVelocity=100
-    ;载体允许的最大角速度
-    maxAngularVelocity=45
-    ;载体允许的最小角速度
-    minAngularVelocity=0
-    ;使能超声波传感器数据用于Navipack
-    ;*****************重点参数
-    enableUltrasound=0
-    ;使能开关量传感器（跌落、碰撞）数据用于Navipack
-    ;*****************重点参数
-    enableSwitchSensor=0
-    ;使能多传感器融合数据用于导航(默认打开)
-    enableUsingTotalMapForNavigation=1
+    [UltraSensorParam]
+    ;是否用于导航
+    bUseForNavigation=0
+    ;传感器数据记忆时间（秒）
+    dataMemoryTime=3600
+    ;超声波传感器个数
+    ultrasoundSensorNum=5
+    ;相对轮轴中心安装位置
+    ultrasoundSensorX=222,178,62,62,178
+    ultrasoundSensorY=0,116,164,-164,-116
+    ;超声波水平朝向
+    ;如果不是水平朝向，需要将测量数据投影到水平方向
+    ultrasoundSensorOrientationAngle=0,45,90,270,315
+    ;超声波用于NaviPack的最小视距（不建议修改）
+    ultrasoundSensorMinMeasureDistance=30
+    ;超声波用于NaviPack的最大视距（不建议修改）
+    ultrasoundSensorMaxMeasureDistance=600
+    ;超声波视场角
+    ultrasoundSensorFOV=15
+    [DropSensorParam]
+    ;是否用于导航
+    bUseForNavigation=0
+    ;传感器数据记忆时间（秒）
+    dataMemoryTime=3600
+    ;跌落传感器个数
+    dropSensorNum=4
+    ;跌落传感器相对轮轴中心安装位置
+    dropSensorX=50,150,150,50
+    dropSensorY=-150,-50,50,150
+    [CollisionSensorParam]
+    ;是否用于导航
+    bUseForNavigation=0
+    ;传感器数据记忆时间（秒）
+    dataMemoryTime=3600
+    ;碰撞传感器开关量个数
+    collisionSensorNum=2
+    ;碰撞传感器相对轮轴中心安装位置
+    collisionSensorX=113,113
+    collisionSensorY=-113,113
+    [IrSensorParam]
+    ;是否用于导航
+    bUseForNavigation=0
+    ;传感器数据记忆时间（秒）
+    dataMemoryTime=3600
+    ;红外传感器开关量个数
+    irSensorNum=4
+    ;红外传感器相对轮轴中心安装位置
+    irSensorX=60,178,178,60
+    irSensorY=-178,-60,60,178
+    [DSensorParam]
+    ;是否用于导航
+    bUseForNavigation=0
+    ;传感器数据记忆时间（秒）
+    dataMemoryTime=2
+    ;传感器相对轮轴中心安装位置
+    DSensorX=-50
+    DSensorY=50
+    DSensorZ=370
+    DSensorYaw=0
+    DSensorPitch=0
+    DSensorRoll=0
+    ;设置使用的最大距离
+    DSensorMaxDistance=3000
+    ;设置使用的最小距离
+    DSensorMinDistance=300
+    ;设置最大高度
+    DSensorMaxHeight=1000
+    ;设置最小高度
+    DSensorMinHeight=100
 
 
 ##参数说明
@@ -153,9 +184,18 @@ NaciPack接到上位机上的时候会再上位机上的/dev目录下生成一�
  3. 限制建图时候的速度
  4. 优化了运动规划
  5. 利用多传感器融合进行避障
- 4. sdk接口增加巡逻功能(使用原接口实现)
- 5. sdk demo重新布局 
- 5. 不建议使用自主建图功能
- 6. 手动控制的速度控制优化
- 7. sdk菜单采用滑动屏幕左侧的方式调出
- 8. 图片的移动缩放功能不再使用
+ 6. sdk接口增加巡逻功能(使用原接口实现)
+ 7. sdk demo重新布局 
+ 8. 不建议使用自主建图功能
+ 9. 手动控制的速度控制优化
+ 
+##Ver 3.0.6
+ 10. 修复到点运动的一些BUG
+ 11. 位姿错误时候会进行重新定位
+ 12. 增加深度相机功能
+ 13. 配置文件格式进行修改
+ 14. 自动建图加入（慎用，需配合碰撞传感器使用）
+
+
+
+

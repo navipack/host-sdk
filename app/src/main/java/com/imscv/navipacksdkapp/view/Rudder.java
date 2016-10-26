@@ -129,8 +129,10 @@ public class Rudder extends View {
         }
         if(event.getAction() == MotionEvent.ACTION_MOVE){
 
+
             if(len <= mWheelRadius) {
                 //如果手指在摇杆活动范围内，则摇杆处于手指触摸位置
+
                 mRockerPosition.set((int)event.getX(), (int)event.getY());
             }else{
                 //设置摇杆位置，使其处于手指触摸方向的 摇杆活动范围边缘
