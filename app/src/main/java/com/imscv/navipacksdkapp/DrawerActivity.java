@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -211,15 +210,15 @@ public class DrawerActivity extends Activity {
                     break;
                 case R.id.btn_startGoRound:
 
-                    if (btnStartRound.getText().toString().equals("开始巡逻")) {
-                        btnStartRound.setText("暂停巡逻");
+                    if (btnStartRound.getText().toString().equals(getString(R.string.go_round_start))) {
+                        btnStartRound.setText(getString(R.string.go_round_pause));
                         isStartGoRound = true;
                         Point point = mapSurfaceView.getNextPoint();
                         if (point != null) {
                             setGoToOnePoint(point);
                         }
                     } else {
-                        btnStartRound.setText("开始巡逻");
+                        btnStartRound.setText(getString(R.string.go_round_start));
                         isStartGoRound = false;
                         mChsControl.setChsSpeed(mHandlerId, 0, 0);
                     }
@@ -339,13 +338,13 @@ public class DrawerActivity extends Activity {
             }
             switch (msgType) {
                 case NaviPackType.DEVICE_MSG_TYPE_ERROR_CODE://有错误
-                    updateTvMsg("设备发生错误，错误码： " + msgCode);
+                    updateTvMsg("warnings! code" + msgCode);
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_MAP://地图有更新
                     if (msgCode == NaviPackType.CODE_MAP_LIDAR) {
 
                         mNaviPack.getMapLayer(mHandlerId, mapData, NaviPackType.CODE_MAP_LIDAR);
-                        updateTvMsg("地图有更新 ，图像长度：" + mapData.width + " 图像宽度：" + mapData.height);
+                        updateTvMsg("map updata ：width = " + mapData.width + " height = " + mapData.height);
                         lidarMap = mapData.getBitmap();
                         if (lidarMap != null) {
                             mapSurfaceView.setUpdateMap(lidarMap);
@@ -366,7 +365,7 @@ public class DrawerActivity extends Activity {
                     }
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_INIT_LOCATION_SUCCESS:
-                    updateTvMsg("初始定位成功！");
+                    updateTvMsg(" init location success! ");
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_ALG_ATATUS_REG:
                     mNaviPack.getStatus(mHandlerId, statusReg);
@@ -376,7 +375,7 @@ public class DrawerActivity extends Activity {
                 case NaviPackType.DEVICE_MSG_TYPE_NAVIGATION:
 
                     if (msgCode == NaviPackType.CODE_TARGET_REACH_POINT) {
-                        updateTvMsg("到点运动，到达指定点");
+                        updateTvMsg("arrive defined point success!");
                         mapSurfaceView.setUpdatePlanedPath(null);
                         if (isStartGoRound)  //如果在巡逻模式则继续进行
                         {
@@ -387,10 +386,10 @@ public class DrawerActivity extends Activity {
                             }
                         }
                     } else if (msgCode == NaviPackType.CODE_TARGET_TERMINAL) {
-                        updateTvMsg("停止运动（急停）");
+                        //updateTvMsg("停止运动（急停）");
                         mapSurfaceView.setUpdatePlanedPath(null);
                     } else if (msgCode == NaviPackType.CODE_TARGET_PATH_UPGRADE) {
-                        updateTvMsg("到点运动路径有更新");
+                        updateTvMsg("path update!");
                         int[] posX = new int[360];
                         int[] posY = new int[360];
                         int path_num = mNaviPack.getCurrentPath(mHandlerId, posX, posY);
@@ -404,16 +403,16 @@ public class DrawerActivity extends Activity {
                     }
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_GET_NAVIPACK_VERSION:
-                    updateTvMsg("navipack 套件版本为：" + mNaviPack.transformVersionCode(msgCode));
+                    updateTvMsg("navipack version：" + mNaviPack.transformVersionCode(msgCode));
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_SET_SAVE_CURRENT_MAP:
-                    updateTvMsg("navipack 保存当前地图ID = " + msgCode);
+                    updateTvMsg("navipack save current map , ID = " + msgCode);
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_SET_LOAD_MAP_FROME_LIST:
-                    updateTvMsg("navipack 加载当前地图ID = " + msgCode);
+                    updateTvMsg("navipack load current map , ID = " + msgCode);
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_MAP_LIST:
-                    updateTvMsg("navipack 地图列表有更新 = " + msgCode);
+                    updateTvMsg("navipack map list is updata ");
 
                     break;
 
@@ -463,10 +462,10 @@ public class DrawerActivity extends Activity {
     public void changeRudderMode(final int visibility) {
         TuiCoolMenuItem item = menuDrawerAdapter.getItem(DrawerAdapter.FREE_CONTROL);
         if (visibility == View.VISIBLE) {
-            item.menuTitle = "取消控制";
+            item.menuTitle = getString(R.string.adp_cancle_control);
             isRudderUse = true;
         } else {
-            item.menuTitle = "自由控制";
+            item.menuTitle = getString(R.string.adp_free_control);
             isRudderUse = false;
         }
 
@@ -487,10 +486,10 @@ public class DrawerActivity extends Activity {
         TuiCoolMenuItem item = menuDrawerAdapter.getItem(DrawerAdapter.GO_ROUNDS);
         mapSurfaceView.resetGoRounds();
         if (visibility == View.VISIBLE) {
-            item.menuTitle = "取消巡逻";
+            item.menuTitle = getString(R.string.adp_cancel_go_rounts);
             isGoRoundBtnShow = true;
         } else {
-            item.menuTitle = "定点巡逻";
+            item.menuTitle = getString(R.string.adp_go_rounts);
             isGoRoundBtnShow = false;
             isStartGoRound = false;
         }
@@ -536,7 +535,7 @@ public class DrawerActivity extends Activity {
                         changeRoundMode(View.INVISIBLE);
                     }
                     break;
-                case DrawerAdapter.STOP_BUILD_MAP://保存建图
+                case DrawerAdapter.SAVE_BUILD_MAP://保存建图
                     int stopBuildMapRet = mNaviPack.stopMapping(mHandlerId, 0);
                     changeRudderMode(View.GONE);
                     break;
@@ -575,27 +574,27 @@ public class DrawerActivity extends Activity {
                     if(mNavipackMode == 0)
                     {
                         mNavipackMode = 1;
-                        item.menuTitle = "取消转发";
+                        item.menuTitle = getString(R.string.adp_change_lidar_modes_canecl);
                     }
                     else
                     {
                         mNavipackMode = 0;
-                        item.menuTitle = "雷达转发";
+                        item.menuTitle = getString(R.string.adp_change_lidar_modes);
                     }
                     mNaviPack.setChangeNaviPackMode(mHandlerId,mNavipackMode);
                     break;
                 case DrawerAdapter.GET_NAVIPACK_VERSION:
                     String localVer = mNaviPack.getSdkVersion();
-                    updateTvMsg("navipack SDK版本为："+localVer);
+                    updateTvMsg("navipack SDK version："+localVer);
                     mNaviPack.setGetNaviPackVersion(mHandlerId);
                     break;
                 case DrawerAdapter.START_BUILD_MAP_AUTO:
-                    updateTvMsg("navipack 自动建图 ");
+                    updateTvMsg("navipack auto build map ");
                     changeRudderMode(View.GONE);
                     mHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            updateTvMsg("navipack 启动自动建图 ");
+                            updateTvMsg("navipack start auto build map!");
                             mNaviPack.startMapping(mHandlerId, 1);
                         }
                     },1000);

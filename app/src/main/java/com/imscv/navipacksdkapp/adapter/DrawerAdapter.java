@@ -26,10 +26,9 @@ import java.util.Set;
  */
 public class DrawerAdapter extends BaseAdapter {
 
-
     public static final int LOAD_MAP = 0;
     public static final int START_BUILD_MAP = 1;
-    public static final int STOP_BUILD_MAP = 2;
+    public static final int SAVE_BUILD_MAP = 2;
     public static final int INIT_LOCATION = 3;
     public static final int MOVE_TO_POINT = 4;
     public static final int FREE_CONTROL = 5;
@@ -56,18 +55,19 @@ public class DrawerAdapter extends BaseAdapter {
 
         this.context = context;
 
-        MenuItems.add(new TuiCoolMenuItem("载入地图", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("手动建图", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("保存建图", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("初始定位", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("到点运动", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("取消控制", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("升级套件", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("保存地图", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("定点巡逻", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("雷达转发", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("获取版本", R.mipmap.option_delay));
-        MenuItems.add(new TuiCoolMenuItem("自动建图", R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_load_map), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_start_build_map), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_save_build_map), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_init_location), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_move_to_point), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_cancle_control), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_update_navipack), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_save_use_map), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_go_rounts), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_change_lidar_modes), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_get_version), R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_start_auto_build_map), R.mipmap.option_delay));
+
 
 //        this.mInflater = LayoutInflater.from(context);
 

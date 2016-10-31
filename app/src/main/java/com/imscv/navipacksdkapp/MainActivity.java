@@ -146,10 +146,10 @@ public class MainActivity extends Activity {
         @Override
         public void onOpenSuccess(boolean isSuccess) {
             if (isSuccess) {
-                Toast.makeText(MainActivity.this, "连接成功!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "connect success !", Toast.LENGTH_SHORT).show();
                 showControlView(mDevice);
             } else {
-                Toast.makeText(MainActivity.this, "连接失败！", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "connect failed  !", Toast.LENGTH_SHORT).show();
                 mNaviPackSdk.destroy(mDevice.id);
             }
         }

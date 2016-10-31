@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="开始巡逻"/>
+            android:text="@string/go_round_start"/>
     </LinearLayout>
 
 
