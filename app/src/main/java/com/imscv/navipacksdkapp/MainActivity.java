@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     private EditText editText;
     private ListView listView;
 
-    private String deviceName = "192.168.1.127";
+    private String deviceName = "192.168.1.101";
     private NaviPackSdk.ConnectTypeEnum mConnectType = NaviPackSdk.ConnectTypeEnum.SERIAL_CON;
 
     private ArrayList<Device> devices = new ArrayList<>();

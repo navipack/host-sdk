@@ -31,7 +31,7 @@ import java.util.List;
 public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callback {
     private static final String TAG = "MapSurfaceView";
     private static final boolean VERBOSE = true;
-    private static final float CAR_SIZE = 10.0f;
+    private static final float CAR_SIZE = 4.0f;
 
     //事件标记
     private static final int K_WHAT_INIT = 0;
@@ -277,6 +277,7 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
     public synchronized void doDraw() {
         lastUpdateTime = System.currentTimeMillis();
         if (mIsRunning) {
+
             // rate =3;
             mCanvas = surfaceHolder.lockCanvas();
             if (mCanvas == null) return;
@@ -291,31 +292,22 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
 //                    + " MoveX = " + moveX + " MoveY = " + moveY);
 
             mCanvas.translate(moveX, moveY);
-            // 绘制触摸点
             mPaint.setColor(Color.LTGRAY);
             // 绘制地图
             imageStartPoint.set((int) (screenW / 2 / rate - map.getWidth() / 2), (int) (screenH / 2 / rate - map.getHeight() / 2));
             mCanvas.drawBitmap(map, imageStartPoint.x, imageStartPoint.y, mPaint);
 
             //绘制触摸点
-            mPaint.setStrokeWidth(2.0f / rate);
-            mPaint.setColor(Color.BLUE);
-            mCanvas.drawCircle((float) (imageStartPoint.x + touchDisPlay.x), (float) (imageStartPoint.y + touchDisPlay.y), 5.0f / rate, mPaint);
-
-            //绘制车
+            mPaint.setStrokeWidth(2.0f/rate);
             mPaint.setColor(Color.GREEN);
-            float CarPointX = imageStartPoint.x + chsPoint.x;
-            float CarPointY = imageStartPoint.y + chsPoint.y;
-            float CarPhiLen = CAR_SIZE * 3 / rate;
-            mCanvas.drawCircle(CarPointX, CarPointY, CAR_SIZE / rate, mPaint);
-            mCanvas.drawLine(CarPointX, CarPointY, CarPointX + CarPhiLen * (float) Math.cos(chsPhi),
-                    CarPointY + CarPhiLen * (float) Math.sin(chsPhi), mPaint);
+            mCanvas.drawCircle((float) (imageStartPoint.x + touchDisPlay.x), (float) (imageStartPoint.y + touchDisPlay.y), 3.0f, mPaint);
+
 
             //绘制传感器数据
             if (isNeedUpdateSensorData) {
                 if (sensorPoints != null) {
                     switchSensorPointsToRealSensorPoints();
-                    mPaint.setStrokeWidth(3.0f / rate);
+                    mPaint.setStrokeWidth(1.5f);
                     mPaint.setColor(Color.RED);
                     mCanvas.drawPoints(realSensorPoints, mPaint);
                 }
@@ -323,12 +315,27 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
 
             //绘制路径点
             if (pathPlanPoints != null) {
-                mPaint.setColor(Color.YELLOW);
+                mPaint.setStrokeWidth(1.5f);
+                mPaint.setColor(Color.GREEN);
                 for (int i = 0; i < pathPlanPoints.length - 1; i++) {
                     mCanvas.drawLine(imageStartPoint.x + pathPlanPoints[i].x, imageStartPoint.y + pathPlanPoints[i].y, imageStartPoint.x + pathPlanPoints[i + 1].x,
                             imageStartPoint.y + pathPlanPoints[i + 1].y, mPaint);
+                    if (i < pathPlanPoints.length - 2) {
+                        mCanvas.drawCircle(imageStartPoint.x + pathPlanPoints[i + 1].x, imageStartPoint.y + pathPlanPoints[i + 1].y, 2, mPaint);
+                    }
                 }
             }
+
+            //绘制车
+            mPaint.setStrokeWidth(4.0f/rate);
+            mPaint.setColor(Color.BLUE);
+            float CarPointX = imageStartPoint.x + chsPoint.x;
+            float CarPointY = imageStartPoint.y + chsPoint.y;
+            float CarPhiLen = CAR_SIZE * 3 ;
+            mCanvas.drawCircle(CarPointX, CarPointY, CAR_SIZE , mPaint);
+            mCanvas.drawLine(CarPointX, CarPointY, CarPointX + CarPhiLen * (float) Math.cos(chsPhi),
+                    CarPointY + CarPhiLen * (float) Math.sin(chsPhi), mPaint);
+
 
 
 

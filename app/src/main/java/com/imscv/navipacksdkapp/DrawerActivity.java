@@ -355,6 +355,7 @@ public class DrawerActivity extends Activity {
                 case NaviPackType.DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA:
                     if (msgCode == NaviPackType.CODE_SENSOR_ST_LIDAR2D)   //雷达数据有更新
                     {
+                        Log.d(TAG,"NaviPackType.CODE_SENSOR_ST_LIDAR2D");
                         if (mapData.width > 0 && mapData.height > 0) {
                             mNaviPack.getSensorData(mHandlerId, sensorData, NaviPackType.CODE_SENSOR_ST_LIDAR2D);
 
@@ -370,6 +371,7 @@ public class DrawerActivity extends Activity {
                 case NaviPackType.DEVICE_MSG_TYPE_UPDATE_ALG_ATATUS_REG:
                     mNaviPack.getStatus(mHandlerId, statusReg);
                     Point pos = PosTransform.pointToPix(new Point(statusReg.posX, statusReg.posY), mapData);
+
                     mapSurfaceView.setChsPos(pos, statusReg.posSita);
                     break;
                 case NaviPackType.DEVICE_MSG_TYPE_NAVIGATION:
