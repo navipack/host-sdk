@@ -431,9 +431,9 @@ public class NaviPackSdk extends NaviPackType {
      * @param id NaviPack对象ID
      * @return 消息是否发送成功 小于零表示发送失败
      */
-    public int imuCelibrate(int id)
+    public int imuCalibrate(int id)
     {
-    return native_imuCelibrate(id);
+    return native_imuCalibrate(id);
     }
 
     /**
@@ -526,7 +526,7 @@ public class NaviPackSdk extends NaviPackType {
 
     private native int native_setChangeNaviPackMode(int id,int mode);
 
-    private native int native_imuCelibrate(int id);
+    private native int native_imuCalibrate(int id);
 
     // TODO: 2016/5/26 native --> java
 
