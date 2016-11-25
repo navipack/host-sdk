@@ -10,6 +10,7 @@
 #define LIDAR_RESOLUTION 360
 #define MAX_TARGET_LIST_SIZE 360
 #define MAX_MAP_SIZE	(2000*2000)
+#define UNIFIED_SENSOR_RESOLUTION 360
 
 #define FILE_PATH_MAX_LEN 64
 /// 获得当前SDK的版本号
@@ -425,7 +426,23 @@ typedef struct Mpu6500PointsStr {
 	int gyro_y_str_len;
 	int gyro_z_str_len;
 }Mpu6500PointsStr;
+//统一传感器数据结构（每次发一帧过来）
+typedef struct
+{
+	s32 sensorPosX;//单位mm，传感器相对小车的安装位置X
+	s32 sensorPosY;//单位mm，传感器相对小车的安装位置Y
+	s32 sensorPosPhi;//单位mrad，传感器相对于小车的安装角度phi
+	u32 minValidDis;//单位mm，最短有效距离（盲区）
+	u32 maxValidDis;//单位mm，最大有效距离
 
+	u32 detectedData[UNIFIED_SENSOR_RESOLUTION];//单位mm，
+												//一圈等分，以传感器安装角度正前方开始
+												//逆时针计数（目前为0°- 359°）
+												//若为开关量，只认detectedData[0]=0为无，=1为有
+	u8 sensorType;//0->距离传感器 1->开关量
+	u32 delayTime;//单位ms，该帧数据采集的延时
+	u32 memoryTime;//单位s，该帧数据在地图上的保留时间
+}UnifiedSensorInfo;
 typedef struct Alg3DSensorData
 {
 	int frameWidth;

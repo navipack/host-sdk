@@ -50,7 +50,8 @@ typedef int(WINAPI *SetSelfStreamFuncDef)(int, char* , int);
 typedef int(WINAPI *SetSaveMapFuncDef)(int, const char* , const char*);
 typedef int(WINAPI *SendFileFuncDef)(int, int , const char* , const char*);
 typedef int(WINAPI *SetChangeNaviPackModeFuncDef)(int,int);
-typedef int(WINAPI *ImuCelibrateFuncDef)(int);
+typedef int(WINAPI *ImuCalibrateFuncDef)(int);
+typedef int(WINAPI *SendUnifiedSensorInfoDef)(int, UnifiedSensorInfo);
 
 
 static HINSTANCE mDllInst = NULL;
@@ -98,7 +99,8 @@ static SetSelfStreamFuncDef  SetSelfStreamFunc = NULL;
 static SetSaveMapFuncDef  SetSaveMapFunc = NULL;
 static SendFileFuncDef  SendFileFunc = NULL;
 static SetChangeNaviPackModeFuncDef  SetChangeNaviPackModeFunc = NULL;
-static ImuCelibrateFuncDef ImuCelibrateFunc = NULL;
+static ImuCalibrateFuncDef ImuCalibrateFunc = NULL;
+static SendUnifiedSensorInfoDef SendUnifiedSensorInfoFunc = NULL;
 
 
 NaviPackSdk::NaviPackSdk()
@@ -110,6 +112,8 @@ NaviPackSdk::NaviPackSdk()
 NaviPackSdk::~NaviPackSdk()
 {
 }
+
+
 
 
 
@@ -164,7 +168,8 @@ void NaviPackSdk_Cpp::NaviPackSdk::Init()
 			if (!(SetSaveMapFunc = (SetSaveMapFuncDef)GetProcAddress(mDllInst, "SetSaveMap"))) return;
 			if (!(SendFileFunc = (SendFileFuncDef)GetProcAddress(mDllInst, "SendFile"))) return;
 			if (!(SetChangeNaviPackModeFunc = (SetChangeNaviPackModeFuncDef)GetProcAddress(mDllInst, "SetChangeNaviPackMode"))) return;
-			if (!(ImuCelibrateFunc = (ImuCelibrateFuncDef)GetProcAddress(mDllInst, "ImuCelibrate"))) return;
+			if (!(ImuCalibrateFunc = (ImuCalibrateFuncDef)GetProcAddress(mDllInst, "ImuCalibrate"))) return;
+			if (!(SendUnifiedSensorInfoFunc = (SendUnifiedSensorInfoDef)GetProcAddress(mDllInst, "SendUnifiedSensorInfo"))) return;
 
 		}
 	}
@@ -565,11 +570,20 @@ int NaviPackSdk_Cpp::NaviPackSdk::SetChangeNaviPackMode(int id, int mode)
 	return -1;
 }
 
-int NaviPackSdk_Cpp::NaviPackSdk::ImuCelibrate(int id)
+int NaviPackSdk_Cpp::NaviPackSdk::ImuCalibrate(int id)
 {
-	if (ImuCelibrateFunc)
+	if (ImuCalibrateFunc)
 	{
-		return ImuCelibrateFunc(id);
+		return ImuCalibrateFunc(id);
+	}
+	return 0;
+}
+
+int NaviPackSdk_Cpp::NaviPackSdk::SendUnifiedSensorInfo(int id, UnifiedSensorInfo sensorData)
+{
+	if (SendUnifiedSensorInfoFunc)
+	{
+		return SendUnifiedSensorInfoFunc(id, sensorData);
 	}
 	return 0;
 }

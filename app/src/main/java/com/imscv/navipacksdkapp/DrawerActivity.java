@@ -26,6 +26,7 @@ import com.imscv.navipacksdk.NaviPackSdk;
 import com.imscv.navipacksdk.constant.NaviPackType;
 import com.imscv.navipacksdk.data.AlgMapData;
 import com.imscv.navipacksdk.data.AlgSensorData;
+import com.imscv.navipacksdk.data.UnifiedSensorInfo;
 import com.imscv.navipacksdk.inf.DeviceErrorMsgListener;
 import com.imscv.navipacksdk.inf.DeviceMsgListener;
 import com.imscv.navipacksdk.inf.UpdateCallback;
@@ -601,6 +602,21 @@ public class DrawerActivity extends Activity {
                         }
                     },1000);
 
+                    break;
+                case DrawerAdapter.SEND_UNIFIED_SENSOR_INFO:
+                    UnifiedSensorInfo info = new UnifiedSensorInfo();
+                    info.sensorPosX = 100;
+                    info.sensorPosY = 101;
+                    info.sensorPosPhi = 102;
+                    info.delayTime = 103;
+                    info.maxValidDis = 104;
+                    info.minValidDis = 105;
+                    info.sensorType = 0;
+                    for(int i=0;i<360;i++)
+                    {
+                        info.detectedData[i] = i;
+                    }
+                    mNaviPack.sendUnifiedSensorInfo(mHandlerId,info);
                     break;
                 default:
                     break;

@@ -12,6 +12,7 @@ import com.imscv.navipacksdk.data.AlgMapData;
 import com.imscv.navipacksdk.data.AlgSensorData;
 import com.imscv.navipacksdk.data.CarrierParam;
 import com.imscv.navipacksdk.data.NaviPackParam;
+import com.imscv.navipacksdk.data.UnifiedSensorInfo;
 import com.imscv.navipacksdk.inf.DeviceErrorMsgListener;
 import com.imscv.navipacksdk.inf.DeviceMsgListener;
 import com.imscv.navipacksdk.inf.OpenDeviceListener;
@@ -436,6 +437,18 @@ public class NaviPackSdk extends NaviPackType {
     return native_imuCalibrate(id);
     }
 
+
+    /**
+     * 发送统一数据接口
+     * @param id
+     * @param unifiedSensorInfo
+     * @return
+     */
+    public int sendUnifiedSensorInfo(int id,UnifiedSensorInfo unifiedSensorInfo)
+    {
+        return native_sendUnifiedSensorInfo(id,unifiedSensorInfo);
+    }
+
     /**
      * 构造函数
      */
@@ -528,12 +541,13 @@ public class NaviPackSdk extends NaviPackType {
 
     private native int native_imuCalibrate(int id);
 
+    private native int native_sendUnifiedSensorInfo(int id, UnifiedSensorInfo unifiedSensorInfo);   //发送自定义传感器数据
     // TODO: 2016/5/26 native --> java
 
     /**
      * 设备返回的消息回调
      *
-     * @param id      NaviPack对象ID
+     * @param id      NaviPack对象ID192
      * @param msgType 消息类型
      * @param msgCode 消息码
      * @param param   参数

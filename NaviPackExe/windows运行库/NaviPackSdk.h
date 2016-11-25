@@ -323,7 +323,13 @@ namespace NaviPackSdk_Cpp {
 		 /// 手动进行IMU的矫正
 		 /// @param[in] id		NaviPack对象ID
 		 /// @return 返回值小于0，表示失败，等于0表示成功
-		 int ImuCelibrate(int id);
+		 int ImuCalibrate(int id);
+
+		 /// 发送自己的传感器数据到NaviPack
+		 /// @param[in] id				NaviPack对象ID
+		 /// @param[in] sensorData		传感器数据的统一格式
+		 /// @return 返回值小于0，表示失败，等于0表示成功
+		 int SendUnifiedSensorInfo(int id, UnifiedSensorInfo sensorData);
 		private:
 			void Init();
 	};

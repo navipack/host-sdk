@@ -91,7 +91,7 @@ public class MapSurfaceView extends SurfaceView implements SurfaceHolder.Callbac
     private Paint.Style paintStyle = Paint.Style.STROKE;//默认画笔风格
     private int paintAlph = 128;//255;//默认不透明
     private int screenW, screenH;
-    private static final boolean NEED_SURFACE_MOVE = false;     //是否需要移动surface,如果不移动 则不拉伸放大
+    private static final boolean NEED_SURFACE_MOVE = true;     //是否需要移动surface,如果不移动 则不拉伸放大
 
     private UpgradeCanvas mUpgradeCanvas = null;
 
