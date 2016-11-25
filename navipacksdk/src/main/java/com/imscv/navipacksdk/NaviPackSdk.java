@@ -446,6 +446,7 @@ public class NaviPackSdk extends NaviPackType {
      */
     public int sendUnifiedSensorInfo(int id,UnifiedSensorInfo unifiedSensorInfo)
     {
+        Log.d("NaviPackSdkJni","unifiedSensorInfo " + unifiedSensorInfo.sensorPosX);
         return native_sendUnifiedSensorInfo(id,unifiedSensorInfo);
     }
 
