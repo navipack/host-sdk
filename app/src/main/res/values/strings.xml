@@ -5,44 +5,44 @@
     <string name="drawer_close">Drawer is closed </string>
 
 
-    <!--<string name="adp_load_map">load map</string>>-->
-    <!--<string name="adp_start_build_map">build map manual</string>-->
-    <!--<string name="adp_save_build_map">save build map</string>-->
-    <!--<string name="adp_init_location">init location</string>-->
-    <!--<string name="adp_move_to_point">aim point</string>-->
-    <!--<string name="adp_free_control">control manually</string>-->
-    <!--<string name="adp_cancle_control">cancel control</string>-->
-    <!--<string name="adp_update_navipack">update package</string>-->
-    <!--<string name="adp_save_use_map">save using map</string>-->
-    <!--<string name="adp_go_rounts">go tounds</string>-->
-    <!--<string name="adp_cancel_go_rounts">cancel go rounds</string>-->
-    <!--<string name="adp_get_version">get version</string>-->
-    <!--<string name="adp_change_lidar_modes">lidar mode</string>-->
-    <!--<string name="adp_change_lidar_modes_canecl">navipack mode</string>-->
-    <!--<string name="adp_start_auto_build_map">auto build map</string>-->
-    <!--<string name="adp_send_unified_sensor_info">send unified sensor info</string>-->
+    <string name="adp_load_map">load map</string>>
+    <string name="adp_start_build_map">build map manual</string>
+    <string name="adp_save_build_map">save build map</string>
+    <string name="adp_init_location">init location</string>
+    <string name="adp_move_to_point">aim point</string>
+    <string name="adp_free_control">control manually</string>
+    <string name="adp_cancle_control">cancel control</string>
+    <string name="adp_update_navipack">update package</string>
+    <string name="adp_save_use_map">save using map</string>
+    <string name="adp_go_rounts">go tounds</string>
+    <string name="adp_cancel_go_rounts">cancel go rounds</string>
+    <string name="adp_get_version">get version</string>
+    <string name="adp_change_lidar_modes">lidar mode</string>
+    <string name="adp_change_lidar_modes_canecl">navipack mode</string>
+    <string name="adp_start_auto_build_map">auto build map</string>
+    <string name="adp_send_unified_sensor_info">send unified sensor info</string>
 
-    <!--<string name="go_round_start">go rounds start</string>-->
-    <!--<string name="go_round_pause">go rounds pause</string>-->
+    <string name="go_round_start">go rounds start</string>
+    <string name="go_round_pause">go rounds pause</string>
 
 
-    <string name="adp_load_map">载入地图</string>>
-    <string name="adp_start_build_map">手动建图</string>
-    <string name="adp_save_build_map">保存建图</string>
-    <string name="adp_init_location">初始定位</string>
-    <string name="adp_move_to_point">到点运动</string>
-    <string name="adp_free_control">自由控制</string>
-    <string name="adp_cancle_control">取消控制</string>
-    <string name="adp_update_navipack">升级套件</string>
-    <string name="adp_save_use_map">保存地图</string>
-    <string name="adp_go_rounts">定点巡逻</string>
-    <string name="adp_cancel_go_rounts">取消巡逻</string>
-    <string name="adp_get_version">获取版本信息</string>
-    <string name="adp_change_lidar_modes">雷达转发</string>
-    <string name="adp_change_lidar_modes_canecl">取消转发</string>
-    <string name="adp_start_auto_build_map">自动建图</string>
-    <string name="adp_send_unified_sensor_info">自定传感器</string>
-    <string name="go_round_start">开始巡逻</string>
-    <string name="go_round_pause">暂停巡逻</string>
+    <!--<string name="adp_load_map">载入地图</string>>-->
+    <!--<string name="adp_start_build_map">手动建图</string>-->
+    <!--<string name="adp_save_build_map">保存建图</string>-->
+    <!--<string name="adp_init_location">初始定位</string>-->
+    <!--<string name="adp_move_to_point">到点运动</string>-->
+    <!--<string name="adp_free_control">自由控制</string>-->
+    <!--<string name="adp_cancle_control">取消控制</string>-->
+    <!--<string name="adp_update_navipack">升级套件</string>-->
+    <!--<string name="adp_save_use_map">保存地图</string>-->
+    <!--<string name="adp_go_rounts">定点巡逻</string>-->
+    <!--<string name="adp_cancel_go_rounts">取消巡逻</string>-->
+    <!--<string name="adp_get_version">获取版本信息</string>-->
+    <!--<string name="adp_change_lidar_modes">雷达转发</string>-->
+    <!--<string name="adp_change_lidar_modes_canecl">取消转发</string>-->
+    <!--<string name="adp_start_auto_build_map">自动建图</string>-->
+    <!--<string name="adp_send_unified_sensor_info">自定传感器</string>-->
+    <!--<string name="go_round_start">开始巡逻</string>-->
+    <!--<string name="go_round_pause">暂停巡逻</string>-->
 
 </resources>
