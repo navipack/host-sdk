@@ -78,8 +78,8 @@ public class NaviPackType {
 
 
     /**
-     * 消息类型为初始定位成功
-     * 子类型暂时为O
+     * 消息类型为
+     * 子类型暂时为O初始定位成功
      */
     public static final int DEVICE_MSG_TYPE_INIT_LOCATION_SUCCESS = 0x03;
 
