@@ -565,7 +565,7 @@ public class NaviPackSdk extends NaviPackType {
     private void onRecvErrorMsg(int id, int level, int code, byte[] info) {
         Bundle bundle = new Bundle();
         ErrorLevel el = ErrorLevel.values()[level];
-        bundle.putString("errInfo", "[" + el.name() + "]:" + new String(info));
+        bundle.putString("errInfo", new String(info));
         Message msg = sSdkessageDealThread.obtainMessage(K_WHAT_DEVIDE_ERROR_MSG, id, level, code);
         msg.setData(bundle);
         msg.sendToTarget();

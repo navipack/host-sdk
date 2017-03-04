@@ -321,7 +321,7 @@ public class DrawerActivity extends Activity {
     DeviceErrorMsgListener deviceErrorMsgListener = new DeviceErrorMsgListener() {
         @Override
         public void onGetDeviceErrorMsg(int id, int errorLevel, int msgCode, String msgInfo) {
-            updateTvMsg("GetDeviceErrorMsg: level = " + errorLevel + " code = " + msgCode + "\n\t" + msgInfo);
+            updateTvMsg("code(" + msgCode + "):" + msgInfo);
         }
     };
 
@@ -345,7 +345,7 @@ public class DrawerActivity extends Activity {
                     if (msgCode == NaviPackType.CODE_MAP_LIDAR) {
 
                         mNaviPack.getMapLayer(mHandlerId, mapData, NaviPackType.CODE_MAP_LIDAR);
-                        updateTvMsg("map updata ：width = " + mapData.width + " height = " + mapData.height);
+                       // updateTvMsg("map updata ：width = " + mapData.width + " height = " + mapData.height);
                         lidarMap = mapData.getBitmap();
                         if (lidarMap != null) {
                             mapSurfaceView.setUpdateMap(lidarMap);
@@ -356,7 +356,7 @@ public class DrawerActivity extends Activity {
                 case NaviPackType.DEVICE_MSG_TYPE_UPGRADE_SENSOR_DATA:
                     if (msgCode == NaviPackType.CODE_SENSOR_ST_LIDAR2D)   //雷达数据有更新
                     {
-                        Log.d(TAG,"NaviPackType.CODE_SENSOR_ST_LIDAR2D");
+                     //   Log.d(TAG,"NaviPackType.CODE_SENSOR_ST_LIDAR2D");
                         if (mapData.width > 0 && mapData.height > 0) {
                             mNaviPack.getSensorData(mHandlerId, sensorData, NaviPackType.CODE_SENSOR_ST_LIDAR2D);
 
@@ -392,14 +392,14 @@ public class DrawerActivity extends Activity {
                         //updateTvMsg("停止运动（急停）");
                         mapSurfaceView.setUpdatePlanedPath(null);
                     } else if (msgCode == NaviPackType.CODE_TARGET_PATH_UPGRADE) {
-                        updateTvMsg("path update!");
+                       // updateTvMsg("path update!");
                         int[] posX = new int[360];
                         int[] posY = new int[360];
                         int path_num = mNaviPack.getCurrentPath(mHandlerId, posX, posY);
                         Point[] path = new Point[path_num];
                         for (int i = 0; i < path_num; i++) {
                             path[i] = PosTransform.pointToPix(new Point(posX[i], posY[i]), mapData);
-                            updateTvMsg("plan path:" + path[i].toString());
+                        //    updateTvMsg("plan path:" + path[i].toString());
                         }
 
                         mapSurfaceView.setUpdatePlanedPath(path);
