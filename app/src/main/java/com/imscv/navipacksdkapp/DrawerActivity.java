@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.imscv.navipacksdk.NaviPackSdk;
 import com.imscv.navipacksdk.constant.NaviPackType;
@@ -618,6 +619,9 @@ public class DrawerActivity extends Activity {
                     }
                     mNaviPack.sendUnifiedSensorInfo(mHandlerId,info);
                     break;
+                case DrawerAdapter.IMU_CALIBRATE:
+                    //Toast.makeText(DrawerActivity.this,"IMU_CALIBRATE",Toast.LENGTH_SHORT ).show();
+                    mNaviPack.imuCalibrate(mHandlerId);
                 default:
                     break;
             }
