@@ -39,7 +39,9 @@ public class DrawerAdapter extends BaseAdapter {
     public static final int GET_NAVIPACK_VERSION = 10;           //使能或者禁用雷达数据转发
     public static final int START_BUILD_MAP_AUTO = 11;
     public static final int SEND_UNIFIED_SENSOR_INFO = 12;      //测试发送自定义传感器数据
-    public static final int IMU_CALIBRATE = 13;      //测试发送自定义传感器数据
+    public static final int IMU_CALIBRATE = 13;                  //IMU校准
+    public static final int ENABLE_UPDATE_MAP = 14;                  //自动更新地图
+    public static final int DISABLE_UPDATE_MAP = 15;                  //自动更新地图
     private LayoutInflater mInflater = null;
     //ViewHolder静态类
 
@@ -70,6 +72,9 @@ public class DrawerAdapter extends BaseAdapter {
         MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_start_auto_build_map), R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_send_unified_sensor_info),R.mipmap.option_delay));
         MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_IMU_Calibrate),R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_enable_update_map),R.mipmap.option_delay));
+        MenuItems.add(new TuiCoolMenuItem(context.getString(R.string.adp_disable_update_map),R.mipmap.option_delay));
+
 
 //        this.mInflater = LayoutInflater.from(context);
 

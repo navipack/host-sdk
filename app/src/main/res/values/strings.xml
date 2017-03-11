@@ -27,6 +27,8 @@
 
     <!--ldw Editing-->
     <string name="adp_IMU_Calibrate">IMU Calibrate</string>
+    <string name="adp_enable_update_map">Enable Update Map</string>
+    <string name="adp_disable_update_map">Disable Update Map</string>
 
     <!--<string name="adp_load_map">载入地图</string>>-->
     <!--<string name="adp_start_build_map">手动建图</string>-->
