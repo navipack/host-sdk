@@ -451,6 +451,15 @@ public class NaviPackSdk extends NaviPackType {
     }
 
     /**
+     * 进行陀螺仪矫正指令
+     * @param id NaviPack对象ID
+     * @return 消息是否发送成功 小于零表示发送失败
+     */
+    public int enableUpdateMap(int id, boolean  bUpdate_flag)
+    {
+        return native_enableUpdateMap(id,bUpdate_flag);
+    }
+    /**
      * 构造函数
      */
     private NaviPackSdk() {
@@ -543,6 +552,8 @@ public class NaviPackSdk extends NaviPackType {
     private native int native_imuCalibrate(int id);
 
     private native int native_sendUnifiedSensorInfo(int id, UnifiedSensorInfo unifiedSensorInfo);   //发送自定义传感器数据
+
+    private native int native_enableUpdateMap(int id, boolean  bUpdate_flag);   //发送自定义传感器数据
     // TODO: 2016/5/26 native --> java
 
     /**

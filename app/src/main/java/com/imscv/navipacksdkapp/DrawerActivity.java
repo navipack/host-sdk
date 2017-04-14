@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.imscv.navipacksdk.NaviPackSdk;
 import com.imscv.navipacksdk.constant.NaviPackType;
@@ -513,11 +514,11 @@ public class DrawerActivity extends Activity {
         public void onItemClick(AdapterView<?> parent, View view, int position,
                                 long id) {
 
-            selectItem(position);
+            selectItem(view,position);
 
         }
 
-        public void selectItem(int position) {
+        public void selectItem(View view,int position) {
             //  Log.d(TAG, "selectItem " + position + " " + menuDrawerAdapter.funAdapter.get(position));
 
             //将ActionBar中标题更改为选中的标题项
@@ -618,6 +619,16 @@ public class DrawerActivity extends Activity {
                     }
                     mNaviPack.sendUnifiedSensorInfo(mHandlerId,info);
                     break;
+                case DrawerAdapter.IMU_CALIBRATE:
+                    //Toast.makeText(DrawerActivity.this,"IMU_CALIBRATE",Toast.LENGTH_SHORT ).show();
+                    mNaviPack.imuCalibrate(mHandlerId);
+                    break;
+
+                case DrawerAdapter.ENABLE_UPDATE_MAP:
+                    mNaviPack.enableUpdateMap(mHandlerId,true);
+                    break;
+                case DrawerAdapter.DISABLE_UPDATE_MAP:
+                    mNaviPack.enableUpdateMap(mHandlerId,false);
                 default:
                     break;
             }
